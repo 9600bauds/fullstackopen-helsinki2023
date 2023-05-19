@@ -1,0 +1,20 @@
+sequenceDiagram
+    Note right of browser: The user clicks the link leading to the SPA.
+
+    browser->>+server: GET https://studies.cs.helsinki.fi/exampleapp/spa
+    server-->>-browser: <HTML Document>
+    
+    note left of server: Again, the document provided has no CSS<br>and no data on the notes themselves.<br>It only contains a <link> tag and a<br><script> tag, which tell the browser<br>that it should GET those resources if needed.
+
+    browser->>+server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
+    browser->>+server: GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+    note over browser,server: Note that the CSS file is still the same.<br>The browser might not request it, if it's still cached<br>from having opened the previous app.
+    server-->>-browser: <CSS file>
+    server-->>-browser: <JS file>
+
+    note right of browser: The browser now executes the javascript file.<br>This file instructs the server to GET data.json.
+
+    browser->>+server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    server-->>-browser: <JSON file>
+
+    note right of browser: The browser finishes executing the javascript file.<br>This javascript manipulates the document<br>to add the data from the notes.

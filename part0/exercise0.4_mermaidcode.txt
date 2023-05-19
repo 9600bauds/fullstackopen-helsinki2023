@@ -1,0 +1,31 @@
+sequenceDiagram
+    Note right of browser: ...
+    Note right of browser: The browser has previously already fully loaded the page.
+    Note right of browser: The user now fills the form and clicks "submit".<br/>This causes the browser to send a POST request,<br>containing the data in the form.
+
+    browser->>+server: POST https://studies.cs.helsinki.fi/exampleapp/new_note<br/>note=Hello%21
+    note left of server: The user won't really know what the server is doing.<br>Probably adding the note to a database.
+    server-->>-browser: 302 Found<br/>location: /exampleapp/notes
+
+    note over browser,server: The server has now received the POST request.<br/>It simply responds by telling the browser to redirect to<br/>/exampleapp/notes, which is effectively a refresh.<br/>The note that we submitted won't be visible until the page refreshes.
+
+    browser->>+server: GET https://studies.cs.helsinki.fi/exampleapp/notes
+    server-->>-browser: <HTML Document>
+    
+    note left of server: The HTML document provided has no<br>formatting and no data on any notes.<br>The server won't even provide those<br/>until the browser asks, either.
+
+    browser->>+server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
+    browser->>+server: GET https://studies.cs.helsinki.fi/exampleapp/main.js
+    note right of browser: "OK, the HTML file says I need these too..."
+    server-->>-browser: <CSS file>
+    server-->>-browser: <JS file>
+    note left of server: "Well, why didn't you say so earlier!"
+
+    note over browser,server: The browser has now received the instructions on how to visualize<br/>the notes. But, it still has no data on the notes themselves!
+
+    browser->>+server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    note right of browser: "OK, NOW the .js file says I need this too..."
+    server-->>-browser: <JSON file>
+    note left of server: "Sheesh, leave me alone already!"
+
+    note over browser,server: Finally, the browser now has everything it needs to draw the page.<br/>JavaScript will render the notes using the provided JSON.

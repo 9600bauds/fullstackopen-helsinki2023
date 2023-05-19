@@ -1,0 +1,12 @@
+sequenceDiagram
+    Note right of browser: ...
+    Note right of browser: The user has filled out the form<br>and now presses the "submit" button.
+
+    Note right of browser: The "submit" button doesn't send any HTTP requests by itself!<br>It merely runs a javascript function.<br>The first thing this function does is manipulate<br>the document to display the note that was<br>in the form. Note that this is just done locally.
+    Note right of browser: Only after the javascript function is done<br>displaying the note, only then does the<br>browser send the POST request.<br>This is also done by javascript, not the form!
+
+    browser->>+server: POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa<br>Content-Type: application/json<br>{"content":"Hello!","date":"2023-05-19T17:52:04.377Z"}
+
+    server-->>-browser: Status Code 201: Created
+
+    note over browser,server: All done! No redirects are made, and no further requests are sent out.<br>Note that what we end up with may not accurately reflect how the note will<br>display in the server. It's just our old HTML document, with new stuff<br> stapled on top. For example, the server may use different<br>sanitization that cuts out notes that are too long, but our<br>local javascript does no such thing.
