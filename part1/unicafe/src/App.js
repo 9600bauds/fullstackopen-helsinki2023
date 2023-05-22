@@ -1,8 +1,14 @@
 import { useState } from 'react'
 
-const Label = ({ text }) => {
-    return <span>{text}</span>
+
+const StatisticsLine = ({ label, value }) => {
+    return (
+        <div>
+            <span>{label}</span>: <span>{value}</span>
+        </div>
+        )
 }
+
 
 const Button = ({ clickAction, text }) => {
     return (
@@ -12,12 +18,7 @@ const Button = ({ clickAction, text }) => {
         )
 }
 
-const App = () => {
-    // save clicks of each button to its own state
-    const [good, setGood] = useState(0)
-    const [neutral, setNeutral] = useState(0)
-    const [bad, setBad] = useState(0)
-
+const Statistics = ({ good, neutral, bad }) => {
     const getTotal = () => {
         return good + neutral + bad
     }
@@ -32,6 +33,29 @@ const App = () => {
         const posPercent = good / getTotal() * 100;
         return (posPercent || "0") + "%" //Coalescing operator in case of NaN
     }
+
+    if (getTotal() === 0) {
+        return <div>No feedback given!</div>
+    }
+
+    return (
+        <div>
+            <StatisticsLine label="Good" value={good} />
+            <StatisticsLine label="Neutral" value={neutral} />
+            <StatisticsLine label="Bad"  value={bad} />
+            <br></br>
+            <StatisticsLine label="Total" value={getTotal()} />
+            <StatisticsLine label="Average" value={getAverage()} />
+            <StatisticsLine label="Positive%" value={positivePercent()} />
+        </div>
+    )
+}
+
+const App = () => {
+    // save clicks of each button to its own state
+    const [good, setGood] = useState(0)
+    const [neutral, setNeutral] = useState(0)
+    const [bad, setBad] = useState(0)
 
     const increaseGood = (amt) => {
         const updatedGood = good + amt
@@ -55,13 +79,7 @@ const App = () => {
             <Button clickAction={() => increaseBad(1)} text="Bad" />
 
             <h1>Statistics</h1>
-            Good: <Label text={good} /><br></br>
-            Neutral: <Label text={neutral} /><br></br>
-            Bad: <Label text={bad} /><br></br>
-            <br></br>
-            Total: <Label text={getTotal()} /><br></br>
-            Average: <Label text={getAverage()} /><br></br>
-            Positive%: <Label text={positivePercent()} /><br></br>
+            <Statistics good={good} neutral={neutral} bad={bad} />
         </div>
     )
 }
