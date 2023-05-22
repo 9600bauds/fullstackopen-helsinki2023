@@ -18,6 +18,21 @@ const App = () => {
     const [neutral, setNeutral] = useState(0)
     const [bad, setBad] = useState(0)
 
+    const getTotal = () => {
+        return good + neutral + bad
+    }
+    const getScore = () => {
+        return good * 1 + neutral * 0 + bad * -1 //Lazily done in this way so you can change the values later if needed
+    }
+    const getAverage = () => {
+        const average = (getScore() / getTotal())
+        return average || "0" //Coalescing operator: show 0 in case of NaN
+    }
+    const positivePercent = () => {
+        const posPercent = good / getTotal() * 100;
+        return (posPercent || "0") + "%" //Coalescing operator in case of NaN
+    }
+
     const increaseGood = (amt) => {
         const updatedGood = good + amt
         setGood(updatedGood)
@@ -43,6 +58,10 @@ const App = () => {
             Good: <Label text={good} /><br></br>
             Neutral: <Label text={neutral} /><br></br>
             Bad: <Label text={bad} /><br></br>
+            <br></br>
+            Total: <Label text={getTotal()} /><br></br>
+            Average: <Label text={getAverage()} /><br></br>
+            Positive%: <Label text={positivePercent()} /><br></br>
         </div>
     )
 }
