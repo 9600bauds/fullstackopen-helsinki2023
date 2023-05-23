@@ -3,9 +3,10 @@ import { useState } from 'react'
 
 const StatisticsLine = ({ label, value }) => {
     return (
-        <div>
-            <span>{label}</span>: <span>{value}</span>
-        </div>
+        <tr>
+            <td>{label}:</td>
+            <td>{value}</td>
+        </tr>
         )
 }
 
@@ -39,15 +40,14 @@ const Statistics = ({ good, neutral, bad }) => {
     }
 
     return (
-        <div>
+        <table><tbody>
             <StatisticsLine label="Good" value={good} />
             <StatisticsLine label="Neutral" value={neutral} />
             <StatisticsLine label="Bad"  value={bad} />
-            <br></br>
             <StatisticsLine label="Total" value={getTotal()} />
             <StatisticsLine label="Average" value={getAverage()} />
             <StatisticsLine label="Positive%" value={positivePercent()} />
-        </div>
+        </tbody></table>
     )
 }
 
