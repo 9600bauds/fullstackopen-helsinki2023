@@ -1,18 +1,13 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import Filter from './components/Filter'
 import FilteredEntries from './components/FilteredEntries'
 import EntryInput from './components/EntryInput'
 
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
-
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('') //is there really no better way to track the input's state?
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
@@ -52,6 +47,17 @@ const App = () => {
   const filterChanged = (event) => {
     setFilter(event.target.value.toLowerCase())
   }
+
+
+  //Let's import the persons data from our DB.
+  useEffect(() => {
+
+    const eventHandler = response => {
+      setPersons(response.data)
+    }  
+    const promise = axios.get('http://localhost:3001/persons')
+    promise.then(eventHandler)
+  }, []) //Empty array because we want to call this only once, in the initial render
 
   return (
     <div>
