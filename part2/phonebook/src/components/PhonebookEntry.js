@@ -1,6 +1,6 @@
-const PhonebookEntry = ({name}) => {
+const PhonebookEntry = ({props}) => {
     return (
-        <li>{name}</li>
+        <li>{props.name} {props.number}</li>
     )
 }
 
