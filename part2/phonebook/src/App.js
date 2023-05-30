@@ -35,7 +35,14 @@ const App = () => {
       alert(`${newName} is already listed in the phonebook!`)
       return
     }
-    setPersons(persons.concat(newEntry))
+
+    axios.post('http://localhost:3001/persons', newEntry)
+    .then(response => {
+      setPersons(persons.concat(response.data))
+      setNewName(''); //This does not actually clear the text on the input.
+      setNewNumber(''); //I have no idea how to actuall do that, since the state has to be in the main app...
+    })
+    
   }
 
   const nameChanged = (event) => {
