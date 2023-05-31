@@ -1,7 +1,7 @@
 import React from "react"
 import PhonebookEntry from "./PhonebookEntry"
 
-const FilteredEntries = ({entries, filter}) => {
+const FilteredEntries = ({entries, filter, deleteHook}) => {
     function containsSubstringIgnoreCase(stringA, stringB) {
         const lowerCaseStringA = stringA.toLowerCase()
         const lowerCaseStringB = stringB
@@ -17,7 +17,7 @@ const FilteredEntries = ({entries, filter}) => {
     return (
         <div>
         {filteredEntries.map(person =>
-            <PhonebookEntry key={person.id} props={person} />
+            <PhonebookEntry key={person.id} props={person} deleter={() => deleteHook(person.id, person.name)} />
           )}
         </div>
     )
