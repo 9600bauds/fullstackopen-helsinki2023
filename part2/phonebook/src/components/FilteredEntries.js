@@ -17,7 +17,7 @@ const FilteredEntries = ({entries, filter, deleteHook}) => {
     return (
         <div>
         {filteredEntries.map(person =>
-            <PhonebookEntry key={person.id} props={person} deleter={() => deleteHook(person.id, person.name)} />
+            <PhonebookEntry key={person.id} props={person} deleter={() => deleteHook(person.id)} />
           )}
         </div>
     )

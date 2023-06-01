@@ -4,13 +4,15 @@ import PersonService from './services/PersonService'
 import Filter from './components/Filter'
 import FilteredEntries from './components/FilteredEntries'
 import EntryInput from './components/EntryInput'
-
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('') //is there really no better way to track the input's state?
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
 
   function entryAlreadyExists(entry){
     let exists = false;
@@ -22,16 +24,28 @@ const App = () => {
     });
     return exists;
   }
+
+  function showSuccessMessage(text, time){
+    setSuccessMessage(text)
+    setTimeout(() => {
+      setSuccessMessage(null)
+    }, time)
+  }  
+  function showErrorMessage(text, time){
+    setErrorMessage(text)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, time)
+  }
   
   const addEntry = (event) => {    
     event.preventDefault() //do not refresh, do not pass go, do not collect 200$
     if(!newName || !newNumber){
-      alert(`You must input a name and a phone number.`)
+      showErrorMessage(`You must input a name and a phone number.`, 5000)
       return      
     }
     const existingEntry = persons.find(person => person.name === newName);
     if(existingEntry){
-      console.log(existingEntry.name, "already exists!")
       updateEntry(existingEntry, newNumber)
       return
     }
@@ -40,9 +54,10 @@ const App = () => {
     PersonService.create(newEntry)
     .then(response => {
       setPersons(persons.concat(response))
+      showSuccessMessage(`Successfully added ${newEntry.name}.`, 5000)
     })
     .catch(error => {
-      alert(`Failed to create new person! Error: ` + error)
+      showErrorMessage(`Failed to create new person! Error: ` + error, 5000)
     })
   }
 
@@ -52,25 +67,27 @@ const App = () => {
       .then(response => {
         const newState = persons.map(p => p.id !== newEntry.id ? p : response)
         setPersons(newState)
+        showSuccessMessage(`Successfully updated ${newEntry.name} to a new number.`, 5000)
       })
       .catch(error => {
-        alert(`Failed to update person! Error: ` + error)
+        showErrorMessage(`Failed to update person! Error: ` + error, 5000)
       })
   }
 
-  const deleteHook = (id, label) => {
-    if (!window.confirm("Really delete " + label + "?")) {
+  const deleteHook = (id) => {
+    const person = persons.find(p => p.id === id)
+    if (!window.confirm(`Really delete ${person.name}?`)) {
       return
     }
     PersonService.deleteByID(id)
     .then(() => {
       const newState = persons.filter(person => person.id !== id) //Get the persons array, sans this entry. Seems inefficient.
-      setPersons(newState) 
+      setPersons(newState)
+      showSuccessMessage(`Successfully deleted ${person.name}.`, 5000)
     })
-    .catch(() => {
-      console.error(`Person with ID ${id} was already deleted!`)
-      const newState = persons.filter(person => person.id !== id) //go ahead and remove anyways
-      setPersons(newState) 
+    .catch((error) => {
+      showErrorMessage(`Could not delete ${person.name}! Error: ${error}`, 5000)
+
     })
   }
 
@@ -91,13 +108,16 @@ const App = () => {
       setPersons(response)
     })
     .catch(error => {
-      alert(`Couldn't load server data! Error: ` + error)
+      showErrorMessage(`Couldn't load server data! Error: ${error}`, 5000)
     })
   }, []) //Empty array because we want to call this only once, in the initial render
 
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notification message={errorMessage} className="notification error" />
+      <Notification message={successMessage} className="notification success" />
 
       <Filter filterChanged={filterChanged} />
 
