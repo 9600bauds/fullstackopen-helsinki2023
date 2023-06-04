@@ -5,25 +5,40 @@ import CountryService from './services/CountryService';
 
 function App() {
   const [textInput, setTextInput] = useState('')
+  const [allCountries, setAllCountries] = useState([])
   const [searchResults, setSearchResults] = useState([])
 
   function selectCountry(country){
-    setSearchResults([country]) //This works
+    setSearchResults([country]) //Works for Sudan!
+  }
+  
+  function filterData(data, filter){
+    const filteredData = data.filter((country) => {
+      const { name, altSpellings } = country
+      const lowerCaseName = name.common.toLowerCase()
+      // Check if the main name or any of the alternate spellings include the search term
+      return (
+        lowerCaseName.includes(filter.toLowerCase()) ||
+        altSpellings.some((spelling) => spelling.toLowerCase().includes(filter.toLowerCase()))
+      )
+    }
+    )
+    return filteredData
   }
 
   useEffect(() => {
-    if(!textInput){
-      setSearchResults([])
-      return
-    }
-    CountryService.searchName(textInput)
+    CountryService.getAll()
     .then(response => {
-      setSearchResults(response)
+      setAllCountries(response)
     })
     .catch(error => {
       alert(`Couldn't load server data! Error: ${error}`)
     })
-  }, [textInput]) //Update whenever textInput changes
+  }, []) //Initial load
+
+  useEffect(() => {
+    setSearchResults(filterData(allCountries, textInput))
+  }, [textInput, allCountries]) //Redo the filtering anytime textInput or allCountries changes
 
   return (
     <div className="App">
