@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+content-type: application/json
+
+{ 
+    "title": "This Horse Knows Karate?!",
+    "author": "fistkickkid22",
+    "url": "www.karatehorse.com",
+    "likes": 91
+}
