@@ -31,7 +31,7 @@ const favoriteBlog = (blogs) => {
  * 'blogs' (the number of blogs by that author).
  */
 const mostProlificAuthor = (blogs) => {
-  const blogsPerAuthor = _.countBy(blogs, 'author'); //Key = author name, value = blogs for that author
+  const blogsPerAuthor = _.countBy(blogs, (blog) => blog.author); //Key = author name, value = blogs for that author
   const allAuthors = Object.keys(blogsPerAuthor);
   const authorWithMostBlogs = _.maxBy(
     allAuthors,
