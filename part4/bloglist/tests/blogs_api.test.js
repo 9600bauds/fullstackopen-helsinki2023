@@ -7,10 +7,10 @@ const api = supertest(app);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
-  helper.initialBlogs.forEach(async (blogData) => {
-    let blogObject = new Blog(blogData);
-    await blogObject.save();
-  });
+
+  const blogObjects = helper.initialBlogs.map((blog) => new Blog(blog));
+  const promiseArray = blogObjects.map((blog) => blog.save());
+  await Promise.all(promiseArray);
 });
 
 test('blogs are returned as json', async () => {
