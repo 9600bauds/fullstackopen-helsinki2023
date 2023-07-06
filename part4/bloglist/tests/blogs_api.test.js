@@ -72,6 +72,13 @@ test('blog without url cannot be added', async () => {
   expect(blogs).toHaveLength(helper.initialBlogs.length);
 });
 
+test('unique identifier is named "id"', async () => {
+  const blogs = await helper.blogsInDb();
+  for (let blog of blogs) {
+    expect(blog.id).toBeDefined();
+  }
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
