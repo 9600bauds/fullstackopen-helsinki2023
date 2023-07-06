@@ -1,3 +1,5 @@
+const Blog = require('../models/blogSchema');
+
 const initialBlogs = [
   {
     _id: '64a711a238976db704bc26c9',
@@ -49,6 +51,11 @@ const initialBlogs = [
   },
 ];
 
+const blogsInDb = async () => {
+  const blogs = await Blog.find({});
+  return blogs.map((blog) => blog.toJSON());
+};
+
 module.exports = {
-  initialBlogs,
+  initialBlogs, blogsInDb,
 };
