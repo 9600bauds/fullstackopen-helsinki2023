@@ -1,5 +1,4 @@
 const Blog = require('../models/blogSchema');
-
 const initialBlogs = [
   {
     _id: '64a711a238976db704bc26c9',
@@ -51,11 +50,25 @@ const initialBlogs = [
   },
 ];
 
+const nonExistingId = async () => {
+  const blog = new Blog({
+    title: 'This blog does not exist.',
+    author: 'bed',
+    url: 'https://www.google.com/search?q=bed',
+  });
+  await blog.save();
+  await blog.deleteOne();
+
+  return blog._id.toString();
+};
+
 const blogsInDb = async () => {
   const blogs = await Blog.find({});
   return blogs.map((blog) => blog.toJSON());
 };
 
 module.exports = {
-  initialBlogs, blogsInDb,
+  initialBlogs,
+  blogsInDb,
+  nonExistingId,
 };
