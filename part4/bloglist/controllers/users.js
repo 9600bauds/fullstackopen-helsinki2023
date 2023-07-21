@@ -1,10 +1,18 @@
-const bcrypt = require('bcrypt');const usersRouter = require('express').Router();
+const bcrypt = require('bcrypt');
+const usersRouter = require('express').Router();
 const User = require('../models/user');
 
 usersRouter.post('/', async (request, response) => {
   const { username, name, password } = request.body;
 
-  //TODO verify password is valid here?
+  if (!password) {
+    return response.status(400).json({ error: 'password is required' });
+  }
+  if (password.length < 3) {
+    return response
+      .status(400)
+      .json({ error: 'password must be at least 3 characters long' });
+  }
 
   const saltRounds = 10; //Magic number!! I assume this just makes the password harder to bruteforce.
   const passwordHash = await bcrypt.hash(password, saltRounds);
