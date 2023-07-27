@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+//const User = require('./user');
+
 const blogSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -6,9 +8,9 @@ const blogSchema = new mongoose.Schema({
     minlength: [3, 'Title must be at least 3 characters long'],
   },
   author: {
-    type: String,
-    required: [true, 'Author is required'],
-    minlength: [2, 'Author name must be at least 2 characters long'],
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    //required: [true, 'Author is required'],
   },
   url: {
     type: String,

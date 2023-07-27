@@ -1,8 +1,9 @@
 const blogRouter = require('express').Router();
 const Blog = require('../models/blogSchema');
+const User = require('../models/user');
 
 blogRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({});
+  const blogs = await Blog.find({}).populate('author', { name: 1 });
   response.json(blogs);
 });
 
@@ -15,8 +16,12 @@ blogRouter.get('/:id', async (request, response) => {
 });
 
 blogRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body);
+  const { title, url, likes } = request.body;
+  const user = await User.findOne();
+  const blog = new Blog({ title, author: user.id, url, likes });
   const result = await blog.save();
+  user.blogs = user.blogs.concat(result._id);
+  await user.save();
   response.status(201).json(result);
 });
 
