@@ -1,7 +1,6 @@
 const blogRouter = require('express').Router();
 const Blog = require('../models/blogSchema');
-const User = require('../models/user');
-const jwt = require('jsonwebtoken');
+const middleware = require('../utils/middleware');
 
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('author', { name: 1 });
@@ -16,15 +15,8 @@ blogRouter.get('/:id', async (request, response) => {
   response.json(blog);
 });
 
-blogRouter.post('/', async (request, response) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET);
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' });
-  }
-  const user = await User.findById(decodedToken.id);
-  if (!user) {
-    return response.status(401).json({ error: 'token invalid' });
-  }
+blogRouter.post('/', middleware.userExtractor, async (request, response) => {
+  const user = request.user;
 
   const { title, url, likes } = request.body;
   const blog = new Blog({ title, author: user.id, url, likes });
@@ -61,25 +53,21 @@ blogRouter.put('/:id', async (request, response) => {
   response.json(updatedBlog);
 });
 
-blogRouter.delete('/:id', async (request, response) => {
+blogRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
   const blogToDelete = await Blog.findById(request.params.id);
   if (!blogToDelete) {
     //Technically we failed, but the blog doesn't exist, so... mission accomplished?
     return response.status(204).end();
   }
 
-  const decodedToken = jwt.verify(request.token, process.env.SECRET);
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' });
-  }
-  if (decodedToken.id.toString() !== blogToDelete.author.toString()) {
+  const user = request.user;
+  if (user.id.toString() !== blogToDelete.author.toString()) {
     return response
       .status(403)
       .json({ error: 'you do not have permission to delete this blog' });
   }
 
   // Remove blog from the user's list of blogs
-  const user = await User.findById(decodedToken.id);
   user.blogs = user.blogs.filter(
     (blogId) => blogId.toString() !== request.params.id
   );
