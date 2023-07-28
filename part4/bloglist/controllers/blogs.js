@@ -2,7 +2,6 @@ const blogRouter = require('express').Router();
 const Blog = require('../models/blogSchema');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
-const authenticatorHelper = require('../utils/authentication');
 
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('author', { name: 1 });
@@ -19,7 +18,7 @@ blogRouter.get('/:id', async (request, response) => {
 
 blogRouter.post('/', async (request, response) => {
   const decodedToken = jwt.verify(
-    authenticatorHelper.getTokenFrom(request),
+    request.token,
     process.env.SECRET
   );
   if (!decodedToken.id) {
