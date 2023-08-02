@@ -1,6 +1,7 @@
 const blogRouter = require('express').Router();
 const Blog = require('../models/blogSchema');
 const middleware = require('../utils/middleware');
+const User = require('../models/user');
 
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('author', { name: 1 });
@@ -21,8 +22,8 @@ blogRouter.post('/', middleware.userExtractor, async (request, response) => {
   const { title, url, likes } = request.body;
   const blog = new Blog({ title, author: user.id, url, likes });
   const result = await blog.save();
-  user.blogs = user.blogs.concat(result._id);
-  await user.save();
+  //Update using the atomic operation $push, to prevent race conditions
+  await User.updateOne({ _id: user.id }, { $push: { blogs: result._id } });
   response.status(201).json(result);
 });
 
