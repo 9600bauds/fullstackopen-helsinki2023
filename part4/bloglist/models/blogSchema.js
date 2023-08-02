@@ -10,7 +10,6 @@ const blogSchema = new mongoose.Schema({
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    //required: [true, 'Author is required'],
   },
   url: {
     type: String,
@@ -26,6 +25,7 @@ const blogSchema = new mongoose.Schema({
 blogSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
+    returnedObject.author = returnedObject.author.toString();
     delete returnedObject._id;
     delete returnedObject.__v;
   },

@@ -9,7 +9,7 @@
     "deploy": "fly deploy",
     "logs:prod": "fly logs",
     "lint": "eslint . --fix",
-    "test": "cross-env NODE_ENV=test jest --verbose"
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand"
   },
   "author": "",
   "license": "ISC",
