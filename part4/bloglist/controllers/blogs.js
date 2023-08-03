@@ -54,28 +54,32 @@ blogRouter.put('/:id', async (request, response) => {
   response.json(updatedBlog);
 });
 
-blogRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
-  const blogToDelete = await Blog.findById(request.params.id);
-  if (!blogToDelete) {
-    //Technically we failed, but the blog doesn't exist, so... mission accomplished?
-    return response.status(204).end();
+blogRouter.delete(
+  '/:id',
+  middleware.userExtractor,
+  async (request, response) => {
+    const blogToDelete = await Blog.findById(request.params.id);
+    if (!blogToDelete) {
+      //Technically we failed, but the blog doesn't exist, so... mission accomplished?
+      return response.status(204).end();
+    }
+
+    const user = request.user;
+    if (user.id.toString() !== blogToDelete.author.toString()) {
+      return response
+        .status(403)
+        .json({ error: 'you do not have permission to delete this blog' });
+    }
+
+    // Remove blog from the user's list of blogs
+    user.blogs = user.blogs.filter(
+      (blogId) => blogId.toString() !== request.params.id
+    );
+    await user.save();
+
+    await Blog.findByIdAndRemove(request.params.id); //We don't care if this succeeds or not
+    response.status(204).end();
   }
-
-  const user = request.user;
-  if (user.id.toString() !== blogToDelete.author.toString()) {
-    return response
-      .status(403)
-      .json({ error: 'you do not have permission to delete this blog' });
-  }
-
-  // Remove blog from the user's list of blogs
-  user.blogs = user.blogs.filter(
-    (blogId) => blogId.toString() !== request.params.id
-  );
-  await user.save();
-
-  await Blog.findByIdAndRemove(request.params.id); //We don't care if this succeeds or not
-  response.status(204).end();
-});
+);
 
 module.exports = blogRouter;

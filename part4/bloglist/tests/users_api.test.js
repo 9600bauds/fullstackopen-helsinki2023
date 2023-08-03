@@ -84,7 +84,9 @@ describe('user cannot be created', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/);
 
-    expect(result.body.error).toContain('Path `username` (`hi`) is shorter than the minimum allowed length');
+    expect(result.body.error).toContain(
+      'Path `username` (`hi`) is shorter than the minimum allowed length'
+    );
 
     const usersAtEnd = await helper.usersInDb();
     expect(usersAtEnd).toEqual(usersAtStart);
@@ -95,14 +97,17 @@ describe('when there is initially one user in db', () => {
   beforeEach(async () => {
     await User.deleteMany({});
 
-    const passwordHash = await bcrypt.hash('secrettestpassword', 10);
-    const user = new User({
+    const testUser = {
       username: 'testuser',
       name: 'testme',
-      passwordHash,
-    });
+      password: 'secrettestpassword',
+    };
 
-    await user.save();
+    await api
+      .post('/api/users')
+      .send(testUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
   });
 
   test('creation succeeds with a fresh username', async () => {

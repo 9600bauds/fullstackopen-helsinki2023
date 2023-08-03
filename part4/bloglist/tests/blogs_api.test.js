@@ -2,17 +2,34 @@ const mongoose = require('mongoose');
 const supertest = require('supertest');
 const app = require('../app');
 const Blog = require('../models/blogSchema');
+const User = require('../models/user');
 const helper = require('./test_helper');
 
 const api = supertest(app);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
+  await User.deleteMany({});
 
-  //Might need to use a non-parallel function here if the order of the blogs is important
-  const blogObjects = helper.initialBlogs.map((blog) => new Blog(blog));
-  const promiseArray = blogObjects.map((blog) => blog.save());
-  await Promise.all(promiseArray);
+  //Might need to use a non-parallel function here if the order of the objects is important
+
+  await Promise.all(
+    helper.initialUsers.map((user) =>
+      api.post('/api/users').send(user).expect(201)
+    )
+  );
+
+  const validToken = await helper.getValidToken(); //For testing, we assume that the first example user will have made all the blogs.
+
+  await Promise.all(
+    helper.initialBlogs.map((blog) =>
+      api
+        .post('/api/blogs')
+        .send(blog)
+        .set('Authorization', `Bearer ${validToken}`)
+        .expect(201)
+    )
+  );
 });
 
 describe('viewing a specific blog', () => {
@@ -68,17 +85,17 @@ describe('when there are blogs initially saved', () => {
 describe('when adding blogs', () => {
   test('a valid blog can be added', async () => {
     const newBlog = {
-      _id: '64a711a238976db70dedbeef',
       title: 'I Was A Wizard The Whole Time',
-      author: 'imadb',
       url: 'www.youplume.com/r/watch?=thing',
       likes: 72,
-      __v: 0,
     };
+
+    const validToken = await helper.getValidToken();
 
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `Bearer ${validToken}`)
       .expect(201)
       .expect('Content-Type', /application\/json/);
 
@@ -91,14 +108,17 @@ describe('when adding blogs', () => {
 
   test('blog without title cannot be added', async () => {
     const newBlog = {
-      _id: '64a711a238976db70dedbeef',
       url: 'www.youplume.com/r/watch?=thing',
-      author: 'imadb',
       likes: 72,
-      __v: 0,
     };
 
-    await api.post('/api/blogs').send(newBlog).expect(400);
+    const validToken = await helper.getValidToken();
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `Bearer ${validToken}`)
+      .expect(400);
 
     const blogs = await helper.blogsInDb();
     expect(blogs).toHaveLength(helper.initialBlogs.length);
@@ -106,14 +126,17 @@ describe('when adding blogs', () => {
 
   test('blog without url cannot be added', async () => {
     const newBlog = {
-      _id: '64a711a238976db70dedbeef',
       title: 'I Was A Wizard The Whole Time',
-      author: 'imadb',
       likes: 72,
-      __v: 0,
     };
 
-    await api.post('/api/blogs').send(newBlog).expect(400);
+    const validToken = await helper.getValidToken();
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `Bearer ${validToken}`)
+      .expect(400);
 
     const blogs = await helper.blogsInDb();
     expect(blogs).toHaveLength(helper.initialBlogs.length);
@@ -121,16 +144,16 @@ describe('when adding blogs', () => {
 
   test('blog without likes becomes blog with 0 likes', async () => {
     const newBlog = {
-      _id: '64a711a238976db70dedbeef',
       title: 'I Was A Wizard The Whole Time',
-      author: 'imadb',
       url: 'www.youplume.com/r/watch?=thing',
-      __v: 0,
     };
+
+    const validToken = await helper.getValidToken();
 
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `Bearer ${validToken}`)
       .expect(201)
       .expect('Content-Type', /application\/json/);
 
@@ -147,7 +170,12 @@ describe('deleting a blog', () => {
     const blogsAtStart = await helper.blogsInDb();
     const blog = blogsAtStart[0];
 
-    await api.delete(`/api/blogs/${blog.id}`).expect(204);
+    const validToken = await helper.getValidToken();
+
+    await api
+      .delete(`/api/blogs/${blog.id}`)
+      .set('Authorization', `Bearer ${validToken}`)
+      .expect(204);
 
     const blogsAtEnd = await helper.blogsInDb();
 
@@ -165,16 +193,19 @@ describe('updating an existing blog', () => {
     blogToUpdate.title += ' - edited!';
     blogToUpdate.likes++;
 
+    const validToken = await helper.getValidToken();
+
     await api
       .put(`/api/blogs/${blogToUpdate.id}`)
       .send(blogToUpdate)
+      .set('Authorization', `Bearer ${validToken}`)
       .expect(200);
 
     const blogsAtEnd = await helper.blogsInDb();
 
     expect(blogsAtEnd).toHaveLength(blogsAtStart.length);
 
-    const updatedBlog = blogsAtEnd.find(b => b.id === blogToUpdate.id);
+    const updatedBlog = blogsAtEnd.find((b) => b.id === blogToUpdate.id);
 
     expect(updatedBlog.title).toEqual(blogToUpdate.title);
     expect(updatedBlog.likes).toEqual(blogToUpdate.likes);
@@ -183,15 +214,17 @@ describe('updating an existing blog', () => {
   test('fails with status code 404 if id does not exist', async () => {
     const validNonexistingId = await helper.nonExistingId();
 
+    const validToken = await helper.getValidToken();
+
     const editedBlog = {
       title: 'I dont even real',
-      author: 'hlep',
       url: 'www.youplume.com/r/watch?=no',
-      likes: '555'
+      likes: '555',
     };
     await api
       .put(`/api/blogs/${validNonexistingId}`)
       .send(editedBlog)
+      .set('Authorization', `Bearer ${validToken}`)
       .expect(404);
   });
 });
