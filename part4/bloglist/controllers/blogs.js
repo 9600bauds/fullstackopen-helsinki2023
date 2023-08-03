@@ -28,7 +28,7 @@ blogRouter.post('/', middleware.userExtractor, async (request, response) => {
     response.status(201).json(result);
 });
 
-blogRouter.put('/:id', middleware.userExtractor, async (request, response) => {
+blogRouter.put('/:id', async (request, response) => {
     const body = request.body; //Needs sanitization
 
     const blogPojo = {

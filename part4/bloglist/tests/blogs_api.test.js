@@ -193,12 +193,9 @@ describe('updating an existing blog', () => {
         blogToUpdate.title += ' - edited!';
         blogToUpdate.likes++;
 
-        const validToken = await helper.getValidToken();
-
         await api
             .put(`/api/blogs/${blogToUpdate.id}`)
             .send(blogToUpdate)
-            .set('Authorization', `Bearer ${validToken}`)
             .expect(200);
 
         const blogsAtEnd = await helper.blogsInDb();
