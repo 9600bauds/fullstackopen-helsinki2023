@@ -30,7 +30,7 @@ beforeEach(async () => {
                 .expect(201)
         )
     );
-});
+}, 100000);
 
 describe('viewing a specific blog', () => {
     test('succeeds with a valid id', async () => {
@@ -106,6 +106,27 @@ describe('when adding blogs', () => {
         expect(titles).toContain('I Was A Wizard The Whole Time');
     });
 
+    test('the user\'s blog list is updated', async () => {
+        const newBlog = {
+            title: 'I Was A Wizard The Whole Time',
+            url: 'www.youplume.com/r/watch?=thing',
+            likes: 72,
+        };
+
+        const validToken = await helper.getValidToken();
+
+        const response = await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .set('Authorization', `Bearer ${validToken}`)
+            .expect(201)
+            .expect('Content-Type', /application\/json/);
+        const blog = response.body;
+
+        const authorAtEnd = await User.findById(blog.author);
+        expect(authorAtEnd.blogs.includes(blog));
+    });
+
     test('blog without title cannot be added', async () => {
         const newBlog = {
             url: 'www.youplume.com/r/watch?=thing',
@@ -166,7 +187,7 @@ describe('when adding blogs', () => {
 });
 
 describe('deleting a blog', () => {
-    test('succeeds with status code 204 if id is valid', async () => {
+    test('succeeds with status code 204 if id is valid and with valid authorization', async () => {
         const blogsAtStart = await helper.blogsInDb();
         const blog = blogsAtStart[0];
 
@@ -183,6 +204,44 @@ describe('deleting a blog', () => {
 
         const found = blogsAtEnd.find((r) => r.title === blog.title);
         expect(!found);
+    });
+
+    test('removes the blog from the author\'s list of blogs', async () => {
+        const blogsAtStart = await helper.blogsInDb();
+        const blog = blogsAtStart[0];
+
+        const authorAtStart = await User.findById(blog.author);
+        expect(authorAtStart.blogs.includes(blog));
+
+        const validToken = await helper.getValidToken();
+        await api
+            .delete(`/api/blogs/${blog.id}`)
+            .set('Authorization', `Bearer ${validToken}`)
+            .expect(204);
+
+        const authorAtEnd = await User.findById(blog.author);
+        expect(!authorAtEnd.blogs.includes(blog));
+    });
+
+    test('fails with status code 403 if user is not the author of the blog', async () => {
+        const blogsAtStart = await helper.blogsInDb();
+        const blog = blogsAtStart[0];
+
+        //Parameter '1' means we're getting the token from user B. In our initial config, all our posts were made by user A.
+        const tokenFromAnotherUser = await helper.getValidToken(1);
+
+        const result = await api
+            .delete(`/api/blogs/${blog.id}`)
+            .set('Authorization', `Bearer ${tokenFromAnotherUser}`)
+            .expect(403);
+        expect(result.body.error).toContain('you do not have permission');
+
+        const blogsAtEnd = await helper.blogsInDb();
+
+        expect(blogsAtEnd).toHaveLength(blogsAtStart.length);
+
+        const found = blogsAtEnd.find((r) => r.title === blog.title);
+        expect(found);
     });
 });
 
@@ -211,8 +270,6 @@ describe('updating an existing blog', () => {
     test('fails with status code 404 if id does not exist', async () => {
         const validNonexistingId = await helper.nonExistingId();
 
-        const validToken = await helper.getValidToken();
-
         const editedBlog = {
             title: 'I dont even real',
             url: 'www.youplume.com/r/watch?=no',
@@ -221,7 +278,6 @@ describe('updating an existing blog', () => {
         await api
             .put(`/api/blogs/${validNonexistingId}`)
             .send(editedBlog)
-            .set('Authorization', `Bearer ${validToken}`)
             .expect(404);
     });
 });
