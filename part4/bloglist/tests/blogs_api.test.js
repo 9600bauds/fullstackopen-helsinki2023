@@ -127,6 +127,41 @@ describe('when adding blogs', () => {
         expect(authorAtEnd.blogs.includes(blog));
     });
 
+    test('fails with status code 401 if no token is provided', async () => {
+        const newBlog = {
+            title: 'I Was A Wizard The Whole Time',
+            url: 'www.youplume.com/r/watch?=thing',
+            likes: 72,
+        };
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(401)
+            .expect('Content-Type', /application\/json/);
+
+        const blogs = await helper.blogsInDb();
+        expect(blogs).toHaveLength(helper.initialBlogs.length);
+    });
+
+    test('fails with status code 401 if an invalid token is provided', async () => {
+        const newBlog = {
+            title: 'I Was A Wizard The Whole Time',
+            url: 'www.youplume.com/r/watch?=thing',
+            likes: 72,
+        };
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .set('Authorization', 'Bearer ddasdasdasdasdasdasd')
+            .expect(400)
+            .expect('Content-Type', /application\/json/);
+
+        const blogs = await helper.blogsInDb();
+        expect(blogs).toHaveLength(helper.initialBlogs.length);
+    });
+
     test('blog without title cannot be added', async () => {
         const newBlog = {
             url: 'www.youplume.com/r/watch?=thing',
