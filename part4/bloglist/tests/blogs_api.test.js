@@ -43,7 +43,7 @@ describe('viewing a specific blog', () => {
             .expect(200)
             .expect('Content-Type', /application\/json/);
 
-        expect(response.body).toEqual(blog);
+        expect(JSON.stringify(response.body)).toEqual(JSON.stringify(blog));
     });
 
     test('fails with statuscode 404 if note does not exist', async () => {
