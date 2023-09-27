@@ -19,9 +19,16 @@ function App() {
         async function getData(){
             const allBlogs = await blogService.getAll();
             setBlogs(allBlogs);
-            console.log(allBlogs);
         }
         getData();
+    }, []);
+
+    useEffect(() => {
+        const savedUserJSON = window.localStorage.getItem('savedUser');
+        if (savedUserJSON) {
+            const user = JSON.parse(savedUserJSON);
+            setUser(user);
+        }
     }, []);
 
     const handleLogin = async (event) => {
@@ -36,12 +43,18 @@ function App() {
                 username, password,
             });
             setUser(user);
+            window.localStorage.setItem('savedUser', JSON.stringify(user)); 
             setUsername('');
             setPassword('');
         } catch (exception) {
             toast.error('Wrong credentials!');
             return;
         }
+    };
+    
+    const logOutFunc = () => {
+        setUser(null);
+        window.localStorage.removeItem('savedUser'); 
     };
 
     function getLoginOrBloglist(){
@@ -75,6 +88,9 @@ function App() {
             return (
                 <div>
                     <h2>Welcome, {user.name}.</h2>
+                    <button onClick={logOutFunc}>
+                        (Log Out)
+                    </button>
                     <h3>List of All Blogs</h3>
                     {blogs.map(blog =>
                         <Blog key={blog.id} blog={blog} />
