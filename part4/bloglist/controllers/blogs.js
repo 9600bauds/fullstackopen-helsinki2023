@@ -25,7 +25,8 @@ blogRouter.post('/', middleware.userExtractor, async (request, response) => {
     const result = await blog.save();
     //Update using the atomic operation $push, to prevent race conditions
     await User.updateOne({ _id: user.id }, { $push: { blogs: result._id } });
-    response.status(201).json(result);
+    const resultWithAuthor = await result.populate('author', { username: 1, name: 1 });
+    response.status(201).json(resultWithAuthor);
 });
 
 blogRouter.put('/:id', async (request, response) => {

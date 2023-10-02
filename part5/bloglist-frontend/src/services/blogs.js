@@ -6,4 +6,20 @@ const getAll = async () => {
     return response.data;
 };
 
-export default { getAll };
+const create = async (newObject, token) => {
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+
+    const response = await axios.post(baseUrl, newObject, config);
+    return response.data;
+};
+
+const update = async (id, newObject) => {
+    const response = await axios.put(`${ baseUrl }/${id}`, newObject);
+    return response.data;
+};
+
+
+export default { getAll, create, update };
