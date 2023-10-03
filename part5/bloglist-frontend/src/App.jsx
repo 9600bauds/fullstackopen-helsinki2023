@@ -7,14 +7,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import Blog from './components/Blog';
+import NewFormBlog from './components/NewBlogForn';
 
 function App() {
     const [username, setUsername] = useState(''); 
     const [password, setPassword] = useState(''); 
     const [user, setUser] = useState(null);
-
-    const [newTitle, setNewTitle] = useState('');
-    const [newUrl, setNewUrl] = useState('');
 
     const [blogs, setBlogs] = useState([]);
 
@@ -33,7 +31,7 @@ function App() {
             setUser(user);
         }
     }, []);
-
+    
     const handleLogin = async (event) => {
         event.preventDefault(); //do not refresh, do not pass go, do not collect 200$
         if (!username || !password) {
@@ -54,30 +52,11 @@ function App() {
             return;
         }
     };
-
-    const handleNewBlog = async (event) => {
-        event.preventDefault(); //do not refresh, do not pass go, do not collect 200$
-        if (!newTitle || !newUrl) {
-            toast.error('All fields are required!');
-            return;
-        }
-        
-        try {
-            const newBlogPojo = { title: newTitle, url: newUrl };
-            const newBlogResponse = await blogService.create(newBlogPojo, user.token);
-            toast.success(
-                <>
-                  Created a new blog: 
-                    <Blog key={newBlogResponse.id} blog={newBlogResponse}/>
-                </>
-            );
-            setNewTitle('');
-            setNewUrl('');
-        } catch (exception) {
-            toast.error('Failed to create blog! Check the console for more information.');
-            console.log('failed to create blog:', exception);
-            return;
-        }
+    
+    const addBlog = async (newBlogPojo) => {
+        const newBlogResponse = await blogService.create(newBlogPojo, user.token);
+        setBlogs(blogs.concat(newBlogResponse));
+        return newBlogResponse;
     };
     
     const logOutFunc = () => {
@@ -119,28 +98,7 @@ function App() {
                     <button onClick={logOutFunc}>
                         (Log Out)
                     </button>
-                    <h3>Create New Blog</h3>
-                    <form onSubmit={handleNewBlog}>
-                        <div>
-                        Title
-                            <input
-                                type="text"
-                                value={newTitle}
-                                name="Title"
-                                onChange={({ target }) => setNewTitle(target.value)}
-                            />
-                        </div>
-                        <div>
-                        URL
-                            <input
-                                type="text"
-                                value={newUrl}
-                                name="URL"
-                                onChange={({ target }) => setNewUrl(target.value)}
-                            />
-                        </div>
-                        <button type="submit">post it!</button>
-                    </form>
+                    <NewFormBlog addBlog={addBlog}/>
                     <h3>List of All Blogs</h3>
                     {blogs.map(blog =>
                         <Blog key={blog.id} blog={blog} />
