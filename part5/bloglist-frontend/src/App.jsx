@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -8,6 +8,7 @@ import blogService from './services/blogs';
 import loginService from './services/login';
 import Blog from './components/Blog';
 import NewFormBlog from './components/NewBlogForn';
+import Togglable from './components/Togglable';
 
 function App() {
     const [username, setUsername] = useState(''); 
@@ -15,6 +16,8 @@ function App() {
     const [user, setUser] = useState(null);
 
     const [blogs, setBlogs] = useState([]);
+
+    const newBlogFormRef = useRef();
 
     useEffect(() => {
         async function getData(){
@@ -56,6 +59,7 @@ function App() {
     const addBlog = async (newBlogPojo) => {
         const newBlogResponse = await blogService.create(newBlogPojo, user.token);
         setBlogs(blogs.concat(newBlogResponse));
+        newBlogFormRef.current.makeNotVisible();
         return newBlogResponse;
     };
     
@@ -98,7 +102,9 @@ function App() {
                     <button onClick={logOutFunc}>
                         (Log Out)
                     </button>
-                    <NewFormBlog addBlog={addBlog}/>
+                    <Togglable buttonLabel="Add New Blog..." ref={newBlogFormRef}>
+                        <NewFormBlog addBlog={addBlog}/>
+                    </Togglable>
                     <h3>List of All Blogs</h3>
                     {blogs.map(blog =>
                         <Blog key={blog.id} blog={blog} />
