@@ -102,7 +102,7 @@ function App() {
                     <button onClick={logOutFunc}>
                         (Log Out)
                     </button>
-                    <Togglable buttonLabel="Add New Blog..." ref={newBlogFormRef}>
+                    <Togglable openLabel='Add New Blog...' closeLabel='Cancel' ref={newBlogFormRef}>
                         <NewFormBlog addBlog={addBlog}/>
                     </Togglable>
                     <h3>List of All Blogs</h3>
