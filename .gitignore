@@ -2,3 +2,6 @@
 part2/countrydata/start_npm.bat
 part5/bloglist-frontend/package-lock.json
 part5/bloglist-frontend/package-lock.json
+/part4/bloglist/node_modules
+part4/bloglist/package-lock.json
+part4/bloglist/.env
