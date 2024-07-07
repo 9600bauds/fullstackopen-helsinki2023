@@ -32,13 +32,14 @@ const mostBlogs = (blogs) => {
     blogsPerAuthor[thisAuthor] = blogsPerAuthor[thisAuthor] + 1;
     return blogsPerAuthor;
   }
-  blogsPerAuthor = blogs.reduce(functionThatSumsBlogsPerAuthor, []);
+  const likesPerAuthorObj = blogs.reduce(functionThatSumsBlogsPerAuthor, []);
   // At this point, blogsPerAuthor is an object with one property per author.
   // Or an associative array. Apparently they're the same thing in JS.
+  // Let's make it into an array instead.
+  const likesPerAuthorArray = Object.entries(likesPerAuthorObj);
   let mostProlificAuthor = null;
   let max = null;
-  for (let author in blogsPerAuthor) {
-    let amount = blogsPerAuthor[author];
+  for (const [author, amount] of likesPerAuthorArray) {
     if (!mostProlificAuthor || amount > max) {
       mostProlificAuthor = author;
       max = amount;
