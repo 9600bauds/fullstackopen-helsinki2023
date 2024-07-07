@@ -1,4 +1,5 @@
 
+const _ = require('lodash');
 
 const dummy = (blogs) => {
   return 1
@@ -48,9 +49,32 @@ const mostBlogs = (blogs) => {
   return { author: mostProlificAuthor, blogs: max }
 }
 
+const mostLikes = (blogs) => {
+  const functionThatLikesBlogsPerAuthor = (likesPerAuthorObj, blog) => {
+    const thisAuthor = blog.author;
+    if (!likesPerAuthorObj[thisAuthor]) {
+      likesPerAuthorObj[thisAuthor] = 0;
+    }
+    likesPerAuthorObj[thisAuthor] = likesPerAuthorObj[thisAuthor] + blog.likes;
+    return likesPerAuthorObj;
+  }
+  const likesPerAuthorObj = blogs.reduce(functionThatLikesBlogsPerAuthor, []);
+  const likesPerAuthorArray = Object.entries(likesPerAuthorObj);
+  let mostProlificAuthor = _.maxBy(likesPerAuthorArray, ([author, count]) => count)
+  //There's got to be a better way to handle this. Should I even be returning an object with null values? Or just null?
+  if (!mostProlificAuthor) {
+    return {
+      "author": null,
+      "likes": null,
+    }
+  }
+  return { author: mostProlificAuthor[0], likes: mostProlificAuthor[1] }
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
