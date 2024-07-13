@@ -8,12 +8,12 @@ const Blog = require('../models/blog')
 const api = supertest(app)
 
 beforeEach(async () => {
-  await Blog.deleteMany({});
-  testHelper.initialBlogs.forEach(async (blogData) => {
-    let blogObject = new Blog(blogData);
-    await blogObject.save();
-  });
-});
+  await Blog.deleteMany({})
+
+  const blogObjects = testHelper.initialBlogs.map(blog => new Blog(blog))
+  const promiseArray = blogObjects.map(blog => blog.save())
+  await Promise.all(promiseArray)
+})
 
 test('blogs are returned as json', async () => {
   await api
