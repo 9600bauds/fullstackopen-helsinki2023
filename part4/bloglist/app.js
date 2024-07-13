@@ -3,11 +3,18 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const blogsRouter = require('./controllers/blogs')
-require('dotenv').config()
+const config = require('./utils/config');
 
+console.log("starting up at", config.MONGODB_URI)
+mongoose
+  .connect(config.MONGODB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((error) => {
+    console.log('Error connecting to MongoDB:', error.message);
+  });
 
-const mongoUrl = process.env.MONGODB_URI
-mongoose.connect(mongoUrl)
 
 app.use(cors())
 app.use(express.json())
