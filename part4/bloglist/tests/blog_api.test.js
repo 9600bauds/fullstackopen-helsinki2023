@@ -1,4 +1,5 @@
 const { test, after, beforeEach, describe } = require('node:test')
+const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
@@ -24,6 +25,14 @@ describe('with multiple test blogs saved', () => {
       .get('/api/blogs')
       .expect(200)
       .expect('Content-Type', /application\/json/)
+  })
+
+  test('returned blogs have an id property', async () => {
+    const response = await api.get('/api/blogs')
+    const blogsReturned = response.body;
+    for (const blog of blogsReturned) {
+      assert(blog.id)
+    }
   })
 })
 
