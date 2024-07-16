@@ -1,3 +1,5 @@
+const Blog = require("../models/blog")
+
 const initialBlogs = [
   {
     _id: "5a422a851b54a676234d17f7",
@@ -49,6 +51,23 @@ const initialBlogs = [
   }
 ]
 
+const newBlog = {
+  _id: "5a422bc61b54a676234ddddd",
+  title: "Beryllium is weird",
+  author: "liquidman",
+  url: "https://fullstackopen.com/en/part4/testing_the_backend#exercises-4-8-4-12",
+  likes: 1,
+  __v: 0
+}
+
+// Why do we want them as JSON, though?
+const getAllBlogsAsJSON = async () => {
+  const allBlogs = await Blog.find({})
+  return allBlogs.map(blog => blog.toJSON())
+}
+
 module.exports = {
-  initialBlogs
+  initialBlogs,
+  newBlog,
+  getAllBlogsAsJSON
 }

@@ -34,8 +34,43 @@ describe('with multiple test blogs saved', () => {
       assert(blog.id)
     }
   })
+
+  describe('saving a new blog', () => {
+    test('succeeds with code 201', async () => {
+      await api
+        .post('/api/blogs')
+        .send(testHelper.newBlog)
+        .expect(201)
+    })
+
+    test('saves the content correctly', async () => {
+      const sentBlog = testHelper.newBlog
+      const response = await api
+        .post('/api/blogs')
+        .send(sentBlog)
+      const savedBlog = response.body
+      assert.strictEqual(sentBlog.title, savedBlog.title)
+      assert.strictEqual(sentBlog.author, savedBlog.author)
+      assert.strictEqual(sentBlog.url, savedBlog.url)
+      assert.strictEqual(sentBlog.likes, savedBlog.likes)
+    })
+
+    test('lengthens the amount of saved blogs by 1', async () => {
+      const blogsAtFirst = await testHelper.getAllBlogsAsJSON();
+      await api
+        .post('/api/blogs')
+        .send(testHelper.newBlog)
+      const blogsNow = await testHelper.getAllBlogsAsJSON();
+      assert.strictEqual(blogsNow.length, blogsAtFirst.length + 1)
+    })
+  })
 })
 
+describe('with no blogs saved', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+  })
+})
 after(async () => {
   await mongoose.connection.close()
 })
