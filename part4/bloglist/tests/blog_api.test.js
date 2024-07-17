@@ -50,7 +50,7 @@ describe('with multiple test blogs saved', () => {
         .expect('Content-Type', /application\/json/)
     })
 
-    test('fails with statuscode 400 id is invalid', async () => {
+    test('fails with statuscode 400 if id is invalid', async () => {
       const invalidId = 'youcantellthisisinvalidbecauseofthelength'
 
       await api
@@ -76,7 +76,7 @@ describe('with multiple test blogs saved', () => {
         .expect(204)
     })
 
-    test('fails with statuscode 400 id is invalid', async () => {
+    test('fails with statuscode 400 if id is invalid', async () => {
       const invalidId = 'youcantellthisisinvalidbecauseofthelength'
 
       await api
@@ -90,6 +90,41 @@ describe('with multiple test blogs saved', () => {
       await api
         .delete(`/api/blogs/${validNonexistingId}`)
         .expect(204)
+    })
+  })
+
+  describe('modifying a specific blog', () => {
+    test('succeeds when modifying likes', async () => {
+      const blogsAtFirst = await testHelper.getAllBlogsAsJSON()
+      const blogID = blogsAtFirst[0].id;
+      const newAttributes = { likes: 999 }
+
+      const response = await api
+        .put(`/api/blogs/${blogID}`)
+        .send(newAttributes)
+        .expect(200) //I guess it returns 200?
+      const updatedBlog = response.body;
+      assert.deepEqual(updatedBlog.likes, 999)
+    })
+
+    test('fails with statuscode 400 if id is invalid', async () => {
+      const invalidId = 'youcantellthisisinvalidbecauseofthelength'
+      const newAttributes = { likes: 999 }
+
+      await api
+        .put(`/api/blogs/${invalidId}`)
+        .send(newAttributes)
+        .expect(400)
+    })
+
+    test('returns 404 if the ID is valid but nonexistent', async () => {
+      const validNonexistingId = await testHelper.getNonExistingID()
+      const newAttributes = { likes: 999 }
+
+      await api
+        .put(`/api/blogs/${validNonexistingId}`)
+        .send(newAttributes)
+        .expect(404)
     })
   })
 

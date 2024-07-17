@@ -30,4 +30,27 @@ blogsRouter.delete('/:id', async (request, response) => {
   response.status(204).end()
 })
 
+blogsRouter.put('/:id', async (request, response) => {
+  const requestedId = request.params.id;
+  const body = request.body
+
+  //We only need to define the fields that we want to update
+  const newFields = {
+    likes: body.likes,
+    title: body.title,
+    url: body.url,
+  }
+
+  // "new" param is just so we can return the modified object: https://fullstackopen.com/en/part3/saving_data_to_mongo_db#other-operations
+  const updatedBlog = await Blog.findByIdAndUpdate(requestedId, newFields, { new: true })
+
+
+  if (updatedBlog) {
+    response.json(updatedBlog)
+  }
+  else {
+    response.status(404).end()
+  }
+})
+
 module.exports = blogsRouter
