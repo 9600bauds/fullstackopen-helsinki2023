@@ -60,6 +60,7 @@ describe('with multiple test blogs saved', () => {
       await api
         .post('/api/blogs')
         .send(testHelper.newBlog)
+      // I guess we just don't even save the return of this ^
       const blogsNow = await testHelper.getAllBlogsAsJSON();
       assert.strictEqual(blogsNow.length, blogsAtFirst.length + 1)
     })
@@ -69,6 +70,17 @@ describe('with multiple test blogs saved', () => {
 describe('with no blogs saved', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
+  })
+  describe('saving a blog with missing fields', () => {
+    test('a blog with undefined likes becomes a blog with 0 likes', async () => {
+      let newBlogWithoutLikes = { ...testHelper.newBlog } //We clone this one, so we can mutate it
+      delete newBlogWithoutLikes.likes;
+      const response = await api
+        .post('/api/blogs')
+        .send(newBlogWithoutLikes)
+      const savedBlog = response.body
+      assert.strictEqual(savedBlog.likes, 0)
+    })
   })
 })
 after(async () => {
