@@ -65,7 +65,32 @@ describe('with multiple test blogs saved', () => {
         .get(`/api/blogs/${validNonexistingId}`)
         .expect(404)
     })
+  })
 
+  describe('deleting a specific blog', () => {
+    test('succeeds with code 204 with a valid ID', async () => {
+      const blogsAtFirst = await testHelper.getAllBlogsAsJSON()
+      const blogID = blogsAtFirst[0].id;
+      await api
+        .delete(`/api/blogs/${blogID}`)
+        .expect(204)
+    })
+
+    test('fails with statuscode 400 id is invalid', async () => {
+      const invalidId = 'youcantellthisisinvalidbecauseofthelength'
+
+      await api
+        .delete(`/api/blogs/${invalidId}`)
+        .expect(400)
+    })
+
+    test('returns 204 if the ID is valid but nonexistent', async () => {
+      const validNonexistingId = await testHelper.getNonExistingID()
+
+      await api
+        .delete(`/api/blogs/${validNonexistingId}`)
+        .expect(204)
+    })
   })
 
   describe('saving a new blog', () => {
@@ -134,6 +159,7 @@ describe('with no blogs saved', () => {
     })
   })
 })
+
 after(async () => {
   await mongoose.connection.close()
 })

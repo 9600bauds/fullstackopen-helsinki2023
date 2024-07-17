@@ -68,7 +68,7 @@ const getAllBlogsAsJSON = async () => {
 
 const getNonExistingID = async () => {
   let newBlogWithBadID = { ...newBlog } //We clone this one, so we can mutate it. Note that this is JSON and not a Blog object
-  delete newBlogWithBadID._id;
+  delete newBlogWithBadID._id; //So it gets a new ID
   const blog = new Blog(newBlogWithBadID)
   await blog.save()
   await blog.deleteOne()
