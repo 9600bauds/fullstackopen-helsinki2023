@@ -81,6 +81,24 @@ describe('with no blogs saved', () => {
       const savedBlog = response.body
       assert.strictEqual(savedBlog.likes, 0)
     })
+
+    test('a blog with no URL returns 400 bad request', async () => {
+      let newBlogWithoutURL = { ...testHelper.newBlog } //We clone this one, so we can mutate it
+      delete newBlogWithoutURL.url;
+      await api
+        .post('/api/blogs')
+        .send(newBlogWithoutURL)
+        .expect(400)
+    })
+
+    test('a blog with no title returns 400 bad request', async () => {
+      let newBlogWithoutTitle = { ...testHelper.newBlog } //We clone this one, so we can mutate it
+      delete newBlogWithoutTitle.title;
+      await api
+        .post('/api/blogs')
+        .send(newBlogWithoutTitle)
+        .expect(400)
+    })
   })
 })
 after(async () => {
