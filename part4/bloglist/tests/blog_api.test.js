@@ -19,7 +19,6 @@ describe('with multiple test blogs saved', () => {
     await Promise.all(promiseArray)
   })
 
-
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
@@ -33,6 +32,40 @@ describe('with multiple test blogs saved', () => {
     for (const blog of blogsReturned) {
       assert(blog.id)
     }
+  })
+
+  test('all the testing blogs are saved successfully', async () => {
+    const response = await api.get('/api/blogs')
+    const blogsReturned = response.body;
+    assert.strictEqual(blogsReturned.length, testHelper.initialBlogs.length)
+  })
+
+  describe('viewing a specific blog', () => {
+    test('succeeds with a valid ID', async () => {
+      const blogsAtFirst = await testHelper.getAllBlogsAsJSON()
+      const blogID = blogsAtFirst[0].id;
+      await api
+        .get(`/api/blogs/${blogID}`)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+    })
+
+    test('fails with statuscode 400 id is invalid', async () => {
+      const invalidId = 'youcantellthisisinvalidbecauseofthelength'
+
+      await api
+        .get(`/api/blogs/${invalidId}`)
+        .expect(400)
+    })
+
+    test('returns 404 if the ID is valid but nonexistent', async () => {
+      const validNonexistingId = await testHelper.getNonExistingID()
+
+      await api
+        .get(`/api/blogs/${validNonexistingId}`)
+        .expect(404)
+    })
+
   })
 
   describe('saving a new blog', () => {

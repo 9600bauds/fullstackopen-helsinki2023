@@ -66,8 +66,19 @@ const getAllBlogsAsJSON = async () => {
   return allBlogs.map(blog => blog.toJSON())
 }
 
+const getNonExistingID = async () => {
+  let newBlogWithBadID = { ...newBlog } //We clone this one, so we can mutate it. Note that this is JSON and not a Blog object
+  delete newBlogWithBadID._id;
+  const blog = new Blog(newBlogWithBadID)
+  await blog.save()
+  await blog.deleteOne()
+
+  return blog._id.toString()
+}
+
 module.exports = {
   initialBlogs,
   newBlog,
-  getAllBlogsAsJSON
+  getAllBlogsAsJSON,
+  getNonExistingID
 }
