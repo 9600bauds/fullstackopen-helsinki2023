@@ -1,4 +1,5 @@
 const Blog = require("../models/blog")
+const User = require("../models/user")
 
 const initialBlogs = [
   {
@@ -66,6 +67,11 @@ const getAllBlogsAsJSON = async () => {
   return allBlogs.map(blog => blog.toJSON())
 }
 
+const getAllUsersAsJSON = async () => {
+  const allUsers = await User.find({})
+  return allUsers.map(user => user.toJSON())
+}
+
 const getNonExistingID = async () => {
   let newBlogWithBadID = { ...newBlog } //We clone this one, so we can mutate it. Note that this is JSON and not a Blog object
   delete newBlogWithBadID._id; //So it gets a new ID
@@ -80,5 +86,6 @@ module.exports = {
   initialBlogs,
   newBlog,
   getAllBlogsAsJSON,
+  getAllUsersAsJSON,
   getNonExistingID
 }
