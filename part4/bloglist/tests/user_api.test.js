@@ -14,7 +14,7 @@ describe('when there is initially one user in db', () => {
     await User.deleteMany({})
 
     const passwordHash = await bcrypt.hash('hunter123', 10)
-    const user = new User({ name: 'Urist', username: 'carplover', passwordHash })
+    const user = new User({ name: 'Urist', username: 'carplover2', passwordHash })
 
     await user.save()
   })
@@ -39,6 +39,27 @@ describe('when there is initially one user in db', () => {
 
     const usernames = usersAtEnd.map(u => u.username)
     assert(usernames.includes(newUser.username))
+  })
+
+  test('creation fails with proper statuscode and message if username already taken', async () => {
+    const usersAtStart = await testHelper.getAllUsersAsJSON()
+
+    const newUser = {
+      username: 'carplover2',
+      name: 'Urister',
+      password: 'asdasdasd',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await testHelper.getAllUsersAsJSON()
+    assert(result.body.error.includes('expected `username` to be unique'))
+
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length)
   })
 })
 
