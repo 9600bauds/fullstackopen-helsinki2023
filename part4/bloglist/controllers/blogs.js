@@ -21,13 +21,6 @@ blogsRouter.get('/:id', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-  const user = await User.findById(decodedToken.id)
-
   const body = request.body
   const blogObject = {
     _id: body._id,
@@ -35,25 +28,19 @@ blogsRouter.post('/', async (request, response) => {
     author: body.author,
     url: body.url,
     likes: body.likes,
-    user: user.id
+    user: request.user.id
   }
   const blog = new Blog(blogObject)
 
   const savedBlog = await blog.save();
 
-  user.blogs = user.blogs.concat(savedBlog._id)
-  await user.save()
+  request.user.blogs = request.user.blogs.concat(savedBlog._id)
+  await request.user.save()
 
   response.status(201).json(savedBlog);
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  const userid = decodedToken.id;
-  if (!userid) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-
   const requestedId = request.params.id;
   const blog = await Blog.findById(requestedId);
 
@@ -61,7 +48,8 @@ blogsRouter.delete('/:id', async (request, response) => {
     return response.status(204).end() //Nothing to delete... mission accomplished?
   }
 
-  if (blog.user.toString() !== userid.toString()) {
+  if (blog.user.toString() !== request.user.id.toString()) {
+    console.log("expected", blog.user.toString(), "got", request.user.toString())
     return response.status(403).json({ error: 'not authorized' })
   }
 
@@ -70,6 +58,7 @@ blogsRouter.delete('/:id', async (request, response) => {
 })
 
 blogsRouter.put('/:id', async (request, response) => {
+  //I guess as of right now you don't need authorization to edit a blog?
   const requestedId = request.params.id;
   const body = request.body
 
