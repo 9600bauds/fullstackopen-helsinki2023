@@ -27,7 +27,7 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).json({ error: error.message })
   } else if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')) {
     return response.status(400).json({
-      error: 'expected `username` to be unique'
+      error: 'expected `username` to be unique' //I guess this is currently the only case where this can happen?
     })
   } else if (error.name === 'JsonWebTokenError') {
     return response.status(401).json({
