@@ -58,7 +58,7 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
   response.status(204).end()
 })
 
-blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
+blogsRouter.put('/:id', async (request, response) => {
   //I guess as of right now you don't need authorization to edit a blog?
   const requestedId = request.params.id;
   const body = request.body

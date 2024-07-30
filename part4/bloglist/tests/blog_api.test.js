@@ -89,26 +89,32 @@ describe('with multiple test blogs saved', () => {
 
   describe('deleting a specific blog', () => {
     test('succeeds with code 204 with a valid ID', async () => {
+      const validToken = await testHelper.getValidUserToken();
       const blogsAtFirst = await testHelper.getAllBlogsAsJSON()
       const blogID = blogsAtFirst[0].id;
       await api
         .delete(`/api/blogs/${blogID}`)
+        .set('Authorization', `Bearer ${validToken}`)
         .expect(204)
     })
 
     test('fails with statuscode 400 if id is invalid', async () => {
+      const validToken = await testHelper.getValidUserToken();
       const invalidId = 'youcantellthisisinvalidbecauseofthelength'
 
       await api
         .delete(`/api/blogs/${invalidId}`)
+        .set('Authorization', `Bearer ${validToken}`)
         .expect(400)
     })
 
     test('returns 204 if the ID is valid but nonexistent', async () => {
+      const validToken = await testHelper.getValidUserToken();
       const validNonexistingId = await testHelper.getNonExistingID()
 
       await api
         .delete(`/api/blogs/${validNonexistingId}`)
+        .set('Authorization', `Bearer ${validToken}`)
         .expect(204)
     })
   })
@@ -150,16 +156,20 @@ describe('with multiple test blogs saved', () => {
 
   describe('saving a new blog', () => {
     test('succeeds with code 201', async () => {
+      const validToken = await testHelper.getValidUserToken();
       await api
         .post('/api/blogs')
         .send(testHelper.newBlog)
+        .set('Authorization', `Bearer ${validToken}`)
         .expect(201)
     })
 
     test('saves the content correctly', async () => {
+      const validToken = await testHelper.getValidUserToken();
       const sentBlog = testHelper.newBlog
       const response = await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${validToken}`)
         .send(sentBlog)
       const savedBlog = response.body
       assert.strictEqual(sentBlog.title, savedBlog.title)
@@ -169,9 +179,11 @@ describe('with multiple test blogs saved', () => {
     })
 
     test('lengthens the amount of saved blogs by 1', async () => {
+      const validToken = await testHelper.getValidUserToken();
       const blogsAtFirst = await testHelper.getAllBlogsAsJSON();
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${validToken}`)
         .send(testHelper.newBlog)
       // I guess we just don't even save the return of this ^
       const blogsNow = await testHelper.getAllBlogsAsJSON();
@@ -186,30 +198,36 @@ describe('with no blogs saved', () => {
   })
   describe('saving a blog with missing fields', () => {
     test('a blog with undefined likes becomes a blog with 0 likes', async () => {
+      const validToken = await testHelper.getValidUserToken();
       let newBlogWithoutLikes = { ...testHelper.newBlog } //We clone this one, so we can mutate it
       delete newBlogWithoutLikes.likes;
       const response = await api
         .post('/api/blogs')
         .send(newBlogWithoutLikes)
+        .set('Authorization', `Bearer ${validToken}`)
       const savedBlog = response.body
       assert.strictEqual(savedBlog.likes, 0)
     })
 
     test('a blog with no URL returns 400 bad request', async () => {
+      const validToken = await testHelper.getValidUserToken();
       let newBlogWithoutURL = { ...testHelper.newBlog } //We clone this one, so we can mutate it
       delete newBlogWithoutURL.url;
       await api
         .post('/api/blogs')
         .send(newBlogWithoutURL)
+        .set('Authorization', `Bearer ${validToken}`)
         .expect(400)
     })
 
     test('a blog with no title returns 400 bad request', async () => {
+      const validToken = await testHelper.getValidUserToken();
       let newBlogWithoutTitle = { ...testHelper.newBlog } //We clone this one, so we can mutate it
       delete newBlogWithoutTitle.title;
       await api
         .post('/api/blogs')
         .send(newBlogWithoutTitle)
+        .set('Authorization', `Bearer ${validToken}`)
         .expect(400)
     })
   })
