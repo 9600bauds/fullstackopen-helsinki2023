@@ -9,50 +9,49 @@ const User = require('../models/user')
 
 const api = supertest(app)
 
-describe('when there is initially one user in db', () => {
+describe('when there are initially users in the DB', () => {
   beforeEach(async () => {
     await User.deleteMany({})
 
-    const passwordHash = await bcrypt.hash('hunter123', 10)
-    const user = new User({ name: 'Urist', username: 'carplover2', passwordHash })
-
-    await user.save()
+    const promiseArray = testHelper.initialUsers.map(
+      (userData) => {
+        return api //Don't forget the return here PLEASE
+          .post('/api/users')
+          .send(userData)
+          .expect(201)
+          .expect('Content-Type', /application\/json/)
+      }
+    )
+    await Promise.all(promiseArray)
   })
 
   test('creation succeeds with a fresh username', async () => {
     const usersAtStart = await testHelper.getAllUsersAsJSON()
 
-    const newUser = {
-      username: 'mluukkai',
-      name: 'Matti Luukkainen',
-      password: 'salainen',
-    }
-
     await api
       .post('/api/users')
-      .send(newUser)
+      .send(testHelper.newUser)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
     const usersAtEnd = await testHelper.getAllUsersAsJSON()
+
     assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
 
     const usernames = usersAtEnd.map(u => u.username)
-    assert(usernames.includes(newUser.username))
+    assert(usernames.includes(testHelper.newUser.username))
   })
 
   test('creation fails with proper statuscode and message if username already taken', async () => {
     const usersAtStart = await testHelper.getAllUsersAsJSON()
 
-    const newUser = {
-      username: 'carplover2',
-      name: 'Urister',
-      password: 'asdasdasd',
-    }
+    const alreadyExistingUsername = usersAtStart[0].username;
+    //Use the spread operator to get a copy of newUser, but with username modified
+    let newUserWithRepeatUsername = { ...testHelper.newUser, username: alreadyExistingUsername }
 
     const result = await api
       .post('/api/users')
-      .send(newUser)
+      .send(newUserWithRepeatUsername)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
@@ -65,15 +64,12 @@ describe('when there is initially one user in db', () => {
   test('creation fails with proper statuscode and message if username is too short', async () => {
     const usersAtStart = await testHelper.getAllUsersAsJSON()
 
-    const newUser = {
-      username: 'me',
-      name: 'Ryan Gosling',
-      password: '2007',
-    }
+    //Use the spread operator to get a copy of newUser, but with username modified
+    let newUserWithShortUsername = { ...testHelper.newUser, username: 'me' }
 
     const result = await api
       .post('/api/users')
-      .send(newUser)
+      .send(newUserWithShortUsername)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
@@ -86,15 +82,13 @@ describe('when there is initially one user in db', () => {
   test('creation fails with proper statuscode and message if password is too short', async () => {
     const usersAtStart = await testHelper.getAllUsersAsJSON()
 
-    const newUser = {
-      username: 'literallyme',
-      name: 'Ryan Gosling',
-      password: '22',
-    }
+    //Use the spread operator to get a copy of newUser, but with password modified
+    let newUserWithShortPassword = { ...testHelper.newUser, password: '2' }
+
 
     const result = await api
       .post('/api/users')
-      .send(newUser)
+      .send(newUserWithShortPassword)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 

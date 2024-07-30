@@ -61,6 +61,25 @@ const newBlog = {
   __v: 0
 }
 
+const initialUsers = [
+  {
+    username: 'carplover2',
+    name: 'Urist',
+    password: 'hunter123',
+  },
+  {
+    username: 'madkap',
+    name: 'Jeremy',
+    password: 'eightmilliondollars',
+  }
+]
+
+const newUser = {
+  username: 'mluukkai',
+  name: 'Matti Luukkainen',
+  password: 'salainen',
+}
+
 // Why do we want them as JSON, though?
 const getAllBlogsAsJSON = async () => {
   const allBlogs = await Blog.find({})
@@ -85,6 +104,8 @@ const getNonExistingID = async () => {
 module.exports = {
   initialBlogs,
   newBlog,
+  initialUsers,
+  newUser,
   getAllBlogsAsJSON,
   getAllUsersAsJSON,
   getNonExistingID
