@@ -47,7 +47,7 @@ describe('when there are initially users in the DB', () => {
 
     const alreadyExistingUsername = usersAtStart[0].username;
     //Use the spread operator to get a copy of newUser, but with username modified
-    let newUserWithRepeatUsername = { ...testHelper.newUser, username: alreadyExistingUsername }
+    const newUserWithRepeatUsername = { ...testHelper.newUser, username: alreadyExistingUsername }
 
     const result = await api
       .post('/api/users')
@@ -65,7 +65,7 @@ describe('when there are initially users in the DB', () => {
     const usersAtStart = await testHelper.getAllUsersAsJSON()
 
     //Use the spread operator to get a copy of newUser, but with username modified
-    let newUserWithShortUsername = { ...testHelper.newUser, username: 'me' }
+    const newUserWithShortUsername = { ...testHelper.newUser, username: 'me' }
 
     const result = await api
       .post('/api/users')
@@ -83,8 +83,7 @@ describe('when there are initially users in the DB', () => {
     const usersAtStart = await testHelper.getAllUsersAsJSON()
 
     //Use the spread operator to get a copy of newUser, but with password modified
-    let newUserWithShortPassword = { ...testHelper.newUser, password: '2' }
-
+    const newUserWithShortPassword = { ...testHelper.newUser, password: '2' }
 
     const result = await api
       .post('/api/users')
