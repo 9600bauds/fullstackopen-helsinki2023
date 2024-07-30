@@ -50,7 +50,7 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
   }
 
   if (blog.user.toString() !== request.user.id.toString()) {
-    console.log("expected", blog.user.toString(), "got", request.user.toString())
+    //console.log("expected", blog.user.toString(), "got", request.user.toString())
     return response.status(403).json({ error: 'not authorized' })
   }
 

@@ -117,6 +117,18 @@ describe('with multiple test blogs saved', () => {
         .set('Authorization', `Bearer ${validToken}`)
         .expect(204)
     })
+
+    test('returns 403 if the user didn\'t create this blog', async () => {
+      //We assume all blogs were created by the example user
+      const validTokenForSomeoneElse = await testHelper.getValidUserToken(testHelper.initialUsers[1]);
+      const blogsAtFirst = await testHelper.getAllBlogsAsJSON()
+      const blogID = blogsAtFirst[0].id;
+
+      await api
+        .delete(`/api/blogs/${blogID}`)
+        .set('Authorization', `Bearer ${validTokenForSomeoneElse}`)
+        .expect(403)
+    })
   })
 
   describe('modifying a specific blog', () => {
