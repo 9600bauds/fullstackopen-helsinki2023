@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await
@@ -20,7 +21,7 @@ blogsRouter.get('/:id', async (request, response) => {
   }
 })
 
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   const body = request.body
   const blogObject = {
     _id: body._id,
@@ -34,13 +35,13 @@ blogsRouter.post('/', async (request, response) => {
 
   const savedBlog = await blog.save();
 
-  request.user.blogs = request.user.blogs.concat(savedBlog._id)
-  await request.user.save()
+  //Update using the atomic operation $push, to prevent race conditions
+  await User.updateOne({ _id: request.user.id }, { $push: { blogs: savedBlog._id } });
 
   response.status(201).json(savedBlog);
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
   const requestedId = request.params.id;
   const blog = await Blog.findById(requestedId);
 
@@ -57,7 +58,7 @@ blogsRouter.delete('/:id', async (request, response) => {
   response.status(204).end()
 })
 
-blogsRouter.put('/:id', async (request, response) => {
+blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   //I guess as of right now you don't need authorization to edit a blog?
   const requestedId = request.params.id;
   const body = request.body
