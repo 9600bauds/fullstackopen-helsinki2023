@@ -18,6 +18,9 @@ const userExtractor = async (request, response, next) => {
     return response.status(401).json({ error: 'token invalid' })
   }
   request.user = await User.findById(decodedToken.id)
+  if (!request.user) {
+    return response.status(404).json({ error: 'user not found' });
+  }
   next()
 }
 
@@ -34,28 +37,35 @@ const unknownEndpoint = (request, response) => {
 }
 
 const errorHandler = (error, request, response, next) => {
-  logger.error(error.message)
+  logger.error(error.message);
 
   if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
+    return response.status(400).json({ error: 'Malformatted id' });
   } else if (error.name === 'ValidationError') {
-    return response.status(400).json({ error: error.message })
+    return response.status(400).json({ error: error.message });
   } else if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')) {
     return response.status(400).json({
-      error: 'expected `username` to be unique' //I guess this is currently the only case where this can happen?
-    })
+      error: 'Expected `username` to be unique'  //I guess this is currently the only case where this can happen?
+    });
   } else if (error.name === 'JsonWebTokenError') {
     return response.status(401).json({
-      error: 'invalid token'
-    })
+      error: 'Invalid token'
+    });
   } else if (error.name === 'TokenExpiredError') {
     return response.status(401).json({
-      error: 'token expired'
-    })
+      error: 'Token expired'
+    });
+  } else if (error.name === 'SyntaxError' && error.message.includes('JSON')) {
+    return response.status(400).json({
+      error: 'Invalid JSON in request'
+    });
   }
 
-  next(error)
-}
+  // Do not call next(), do not pass go, do not collect 200$
+  return response.status(500).json({
+    error: 'An unexpected error occurred'
+  });
+};
 
 module.exports = {
   tokenExtractor,
