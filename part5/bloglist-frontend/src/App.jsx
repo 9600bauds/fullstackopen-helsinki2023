@@ -64,6 +64,15 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs => {
+      blogs.sort((a, b) => {
+        if (a.likes > b.likes) {
+          return -1; //I guess -1 goes first?
+        }
+        if (a.likes < b.likes) {
+          return 1;
+        }
+        return 0;
+      });
       setBlogs( blogs );
     }
     );  
