@@ -16,9 +16,25 @@ const App = () => {
     duration: 6000,
   });
 
+  const findBlogFromID = (id) => {
+    return blogs.find(b => b.id === id);
+  };
+  const updateBlogFromID = (id, newBlog) => {
+    setBlogs(blogs.map(blog => blog.id !== id ? blog : newBlog));
+  };
+
   const locallyAddBlog = newBlog => {
     //We're React guys, of course we don't mutate states
     setBlogs([...blogs, newBlog]);
+  };
+
+  const addLike = async (blogId) => {
+    const theBlog = findBlogFromID(blogId);
+    let newBlogObject = { ...theBlog };
+    newBlogObject.likes++;
+    const promise = blogService.update(blogId, newBlogObject);
+    const response = await promise;
+    updateBlogFromID(blogId, response);
   };
 
   const handleLogin = async (username, password) => {
@@ -91,7 +107,7 @@ const App = () => {
         </Togglable>
         <h2>All Blogs</h2>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+          <Blog key={blog.id} blog={blog} addLike={addLike}/>
         )}
       </div>
     </>
