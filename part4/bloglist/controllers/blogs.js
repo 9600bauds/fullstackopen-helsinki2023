@@ -72,6 +72,7 @@ blogsRouter.put('/:id', async (request, response) => {
 
   // "new" param is just so we can return the modified object: https://fullstackopen.com/en/part3/saving_data_to_mongo_db#other-operations
   const updatedBlog = await Blog.findByIdAndUpdate(requestedId, newFields, { new: true })
+    .populate('user', { username: 1, name: 1 });
 
 
   if (updatedBlog) {
