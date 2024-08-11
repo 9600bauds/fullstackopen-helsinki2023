@@ -9,8 +9,6 @@ import Togglable from './components/Togglable';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [username, setUsername] = useState(``);
-  const [password, setPassword] = useState(``);
   const [user, setUser] = useState(null);
   
   const successMessage = (msg) => toast.success(msg);
@@ -23,9 +21,7 @@ const App = () => {
     setBlogs([...blogs, newBlog]);
   };
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    
+  const handleLogin = async (username, password) => {
     try{
       const user = await loginService.login({
         username, password,
@@ -39,8 +35,6 @@ const App = () => {
 
   const onSuccessfulLogin = (user) => {
     setUser(user);
-    setUsername(``);
-    setPassword(``);
     blogService.setToken(user.token);
     window.localStorage.setItem(
       `blogAppUser`, JSON.stringify(user)
@@ -74,10 +68,6 @@ const App = () => {
         <div>
           <h2>Log in to continue</h2>
           <LoginForm
-            username={username}
-            setUsername={setUsername}
-            password={password}
-            setPassword={setPassword}
             handleLogin={handleLogin}
           />
         </div>
