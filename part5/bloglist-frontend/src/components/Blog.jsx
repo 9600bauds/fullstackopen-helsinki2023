@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const Blog = ({ blog, addLike }) => {
+const Blog = ({ blog, user, addLike, deleteBlog }) => {
   const [expanded, setExpanded] = useState(false);
 
   const blogStyle = {
@@ -17,6 +17,21 @@ const Blog = ({ blog, addLike }) => {
 
   const onLikeButtonClicked = () => {
     addLike(blog.id);
+  };
+
+  const onDeleteButtonClicked = () => {
+    if (!window.confirm(`Really delete blog: ${blog.title} by ${blog.author}?`)) {
+      return;
+    }
+    deleteBlog(blog.id);
+  };
+
+  const generateDeleteButton = () => {
+    return(
+      <button onClick = {onDeleteButtonClicked}>
+        Delete
+      </button>
+    );
   };
 
   if(!expanded){
@@ -40,6 +55,7 @@ const Blog = ({ blog, addLike }) => {
       <div>
         submitted by {blog.user.name}
       </div>
+      {user.username === blog.user.username && generateDeleteButton()}
     </div>  
   );
 };

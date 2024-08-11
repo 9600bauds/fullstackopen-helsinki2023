@@ -22,6 +22,9 @@ const App = () => {
   const updateBlogFromID = (id, newBlog) => {
     setBlogs(blogs.map(blog => blog.id !== id ? blog : newBlog));
   };
+  const removeBlogFromID = (id) => {
+    setBlogs(blogs.filter(blog => blog.id !== id));
+  };
 
   const locallyAddBlog = newBlog => {
     //We're React guys, of course we don't mutate states
@@ -29,12 +32,27 @@ const App = () => {
   };
 
   const addLike = async (blogId) => {
-    const theBlog = findBlogFromID(blogId);
-    let newBlogObject = { ...theBlog };
-    newBlogObject.likes++;
-    const promise = blogService.update(blogId, newBlogObject);
-    const response = await promise;
-    updateBlogFromID(blogId, response);
+    try{
+      const theBlog = findBlogFromID(blogId);
+      let newBlogObject = { ...theBlog };
+      newBlogObject.likes++;
+      const promise = blogService.update(blogId, newBlogObject);
+      const response = await promise;
+      updateBlogFromID(blogId, response);
+    }
+    catch(error){
+      errorMessage(error.response.data.error);
+    }
+  };
+
+  const deleteBlog = async (blogId) => {   
+    try{
+      await blogService.remove(blogId);
+      removeBlogFromID(blogId,);
+    }
+    catch(error){
+      errorMessage(error.response.data.error);
+    }    
   };
 
   const handleLogin = async (username, password) => {
@@ -116,7 +134,7 @@ const App = () => {
         </Togglable>
         <h2>All Blogs</h2>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} addLike={addLike}/>
+          <Blog key={blog.id} blog={blog} user={user} addLike={addLike} deleteBlog={deleteBlog}/>
         )}
       </div>
     </>
