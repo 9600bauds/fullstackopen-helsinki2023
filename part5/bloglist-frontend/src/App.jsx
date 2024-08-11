@@ -5,6 +5,7 @@ import blogService from './services/blogs';
 import loginService from './services/login';
 import LoginForm from './components/LoginForm';
 import AddBlogForm from './components/AddBlogForm';
+import Togglable from './components/Togglable';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -88,13 +89,16 @@ const App = () => {
     <>
       <div><Toaster/></div>
       <div>
-      Welcome {user.name}! If that isn&apos;t you, <button onClick={logOut}>log out</button>
-        <h2>Create New Blog</h2>
-        <AddBlogForm
-          successMessage={successMessage}
-          errorMessage={errorMessage}
-          addBlog={locallyAddBlog}
-        />
+        Welcome {user.name}! If that isn&apos;t you, <button onClick={logOut}>log out</button>
+        <hr/>
+        <Togglable buttonLabel="add new blog">
+          <h2>Create New Blog</h2>
+          <AddBlogForm
+            successMessage={successMessage}
+            errorMessage={errorMessage}
+            addBlog={locallyAddBlog}
+          />
+        </Togglable>
         <h2>All Blogs</h2>
         {blogs.map(blog =>
           <Blog key={blog.id} blog={blog} />
