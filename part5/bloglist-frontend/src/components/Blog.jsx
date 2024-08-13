@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
+import { BlogPropType } from '../propTypes/Blog.propTypes';
+import { UserPropType } from '../propTypes/User.propTypes';
 
 const Blog = ({ blog, user, addLike, deleteBlog }) => {
   const [expanded, setExpanded] = useState(false);
@@ -58,6 +61,13 @@ const Blog = ({ blog, user, addLike, deleteBlog }) => {
       {user.username === blog.user.username && generateDeleteButton()}
     </div>  
   );
+};
+
+Blog.propTypes = {
+  blog: BlogPropType.isRequired,
+  user: UserPropType.isRequired,
+  addLike: PropTypes.func.isRequired,
+  deleteBlog: PropTypes.func.isRequired
 };
 
 export default Blog;
