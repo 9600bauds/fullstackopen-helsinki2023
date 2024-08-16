@@ -31,7 +31,7 @@ const Blog = ({ blog, user, addLike, deleteBlog }) => {
 
   const generateDeleteButton = () => {
     return(
-      <button onClick = {onDeleteButtonClicked}>
+      <button className='blogDeleteButton' onClick = {onDeleteButtonClicked}>
         Delete
       </button>
     );
@@ -39,23 +39,23 @@ const Blog = ({ blog, user, addLike, deleteBlog }) => {
 
   if(!expanded){
     return (
-      <div style={blogStyle}>
-        {blog.title} {blog.author}
-        <button onClick={toggleExpanded}>view</button>
+      <div className='blogDiv' style={blogStyle}>
+        <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
+        <button className='toggleButton' onClick={toggleExpanded}>view</button>
       </div>  
     );
   }
   return (
-    <div style={blogStyle}>
-      {blog.title} {blog.author}
-      <button onClick={toggleExpanded}>hide</button>
-      <div>
+    <div className='blogDiv' style={blogStyle}>
+      <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
+      <button className='toggleButton' onClick={toggleExpanded}>hide</button>
+      <div className='blogUrl'>
         {blog.url}
       </div>
-      <div>
+      <div className='blogLikes'>
         Likes: {blog.likes} <button onClick={onLikeButtonClicked}>like!</button>
       </div>
-      <div>
+      <div className='blogSubmittedBy'>
         submitted by {blog.user.name}
       </div>
       {user.username === blog.user.username && generateDeleteButton()}
