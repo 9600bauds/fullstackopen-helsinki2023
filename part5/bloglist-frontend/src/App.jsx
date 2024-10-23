@@ -26,9 +26,11 @@ const App = () => {
     setBlogs(blogs.filter(blog => blog.id !== id));
   };
 
-  const locallyAddBlog = newBlog => {
+  const createBlog = async (blogData) => {
+    const newBlog = await blogService.create(blogData);
     //We're React guys, of course we don't mutate states
     setBlogs([...blogs, newBlog]);
+    return newBlog;
   };
 
   const addLike = async (blogId) => {
@@ -129,7 +131,7 @@ const App = () => {
           <AddBlogForm
             successMessage={successMessage}
             errorMessage={errorMessage}
-            addBlog={locallyAddBlog}
+            createBlog={createBlog}
           />
         </Togglable>
         <h2>All Blogs</h2>
