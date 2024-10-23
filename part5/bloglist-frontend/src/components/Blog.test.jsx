@@ -60,3 +60,19 @@ describe(`expanded blog`, () => {
   });
 
 });
+
+describe(`like function`, () => {
+  test(`has 2 calls when clicked twice`, async () => {
+
+    const mockHandler = vi.fn();
+    render(<Blog blog={blogObject} user={userObject} addLike={mockHandler}/>);
+    const user = userEvent.setup();
+    const expandButton = screen.getByText(`view`);
+    await user.click(expandButton);
+
+    const likeButton = screen.getByText(`like!`);
+    await user.click(likeButton);
+    await user.click(likeButton);
+    expect(mockHandler.mock.calls).toHaveLength(2);
+  });
+});
