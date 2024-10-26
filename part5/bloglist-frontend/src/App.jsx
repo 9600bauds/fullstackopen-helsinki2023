@@ -27,8 +27,9 @@ const App = () => {
   };
 
   const createBlog = async (blogData) => {
+    //First we call the service to actually create the blog in the database (I guess no try/catch here?)
     const newBlog = await blogService.create(blogData);
-    //We're React guys, of course we don't mutate states
+    //If we get to this point, we succeeded! Let's update the blogs state with the new blog (don't mutate the state though)
     setBlogs([...blogs, newBlog]);
     return newBlog;
   };
