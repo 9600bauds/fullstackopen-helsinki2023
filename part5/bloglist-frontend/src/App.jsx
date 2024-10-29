@@ -125,7 +125,9 @@ const App = () => {
     <>
       <div><Toaster/></div>
       <div>
-        Welcome {user.name}! If that isn&apos;t you, <button onClick={logOut}>log out</button>
+        <div data-testid='welcome-msg'>
+          Welcome {user.name}! If that isn&apos;t you, <button onClick={logOut}>log out</button>
+        </div>
         <hr/>
         <Togglable buttonLabel="add new blog">
           <h2>Create New Blog</h2>
