@@ -2,7 +2,7 @@ const { test, expect, beforeEach, describe } = require('@playwright/test')
 
 describe('Bloglist app', () => {
   beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173')
+    await page.goto('/')
   })
 
   test('Login form is shown', async ({ page }) => {

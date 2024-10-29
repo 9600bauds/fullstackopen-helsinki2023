@@ -30,6 +30,12 @@ app.use('/api/login', loginRouter)
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
 
+//Create and assign the testing router only if we're in the testing environment
+if (process.env.NODE_ENV === 'test') {
+  console.log(`Server booting in test mode`);
+  const testingRouter = require('./controllers/testing')
+  app.use('/api/testing', testingRouter)
+}
 
 //Do we really need the unknown endpoint?
 app.use(middleware.unknownEndpoint)
