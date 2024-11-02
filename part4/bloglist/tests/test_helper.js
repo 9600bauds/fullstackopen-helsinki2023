@@ -3,6 +3,7 @@ const User = require("../models/user")
 const app = require('../app');
 const supertest = require('supertest');
 const api = supertest(app);
+const bcrypt = require('bcrypt');
 
 const initialBlogs = [
   {
@@ -76,6 +77,55 @@ const newUser = {
   password: 'salainen',
 }
 
+// Creates a new user in the database from user data.
+// This function mainly exists because we need to hash the password.
+const createTestUser = async userData => {
+  const saltRounds = 10 // Todo: Standardize this somewhere (if tests fail, check that this matches const saltRounds in the user controller)
+  const passwordHash = await bcrypt.hash(userData.password, saltRounds)
+  const user = new User({
+    username: userData.username,
+    name: userData.name,
+    passwordHash
+  })
+  const savedUser = await user.save()
+
+  return savedUser
+}
+// Creates a new blog in the database and updates the user's blogs array
+const createTestBlog = async (blogData, user) => {
+  const blog = new Blog({
+    ...blogData,
+    user: user._id
+  })
+  const savedBlog = await blog.save()
+
+  // Use the atomic $push operation
+  await User.findByIdAndUpdate(
+    user._id,
+    { $push: { blogs: savedBlog._id } },
+    { new: true }
+  )
+
+  return savedBlog
+}
+
+const setupTestDB = async (initialUsers, initialBlogs) => {
+  // Wipe everything
+  await User.deleteMany({})
+  await Blog.deleteMany({})
+
+  // Create all the users first
+  const createdUsers = await Promise.all(
+    initialUsers.map(async userData => createTestUser(userData))
+  )
+
+  // Create all the blogs after. Note that for simplicity's sake, ALL the blogs are submitted by the FIRST user! (our good ol' Urist)
+  const firstUser = createdUsers[0]
+  const createdBlogs = await Promise.all(
+    initialBlogs.map(async blogData => createTestBlog(blogData, firstUser))
+  )
+}
+
 // Why do we want them as JSON, though?
 const getAllBlogsAsJSON = async () => {
   const allBlogs = await Blog.find({})
@@ -113,6 +163,9 @@ module.exports = {
   newBlog,
   initialUsers,
   newUser,
+  createTestUser,
+  createTestBlog,
+  setupTestDB,
   getAllBlogsAsJSON,
   getAllUsersAsJSON,
   getNonExistingID,

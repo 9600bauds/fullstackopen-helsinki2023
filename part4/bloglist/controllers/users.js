@@ -8,7 +8,7 @@ usersRouter.post('/', async (request, response) => {
   if (password.length < 3) {
     return response.status(400).send({ error: 'password must be at least 3 characters' })
   }
-  const saltRounds = 10 //spooky magic number!!
+  const saltRounds = 10 // Todo: Standardize this somewhere (as an .env variable? I don't know what's considered best practice)
   const passwordHash = await bcrypt.hash(password, saltRounds)
 
   const user = new User({

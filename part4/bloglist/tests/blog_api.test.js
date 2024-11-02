@@ -12,30 +12,7 @@ const api = supertest(app)
 
 describe('with multiple test blogs saved', () => {
   beforeEach(async () => {
-    await Blog.deleteMany({})
-
-    const userCreationPromises = testHelper.initialUsers.map(
-      (userData) => {
-        return api //Don't forget the return here PLEASE
-          .post('/api/users')
-          .send(userData)
-      }
-    )
-    await Promise.all(userCreationPromises)
-
-    const validToken = await testHelper.getValidUserToken();
-
-    const blogCreationPromises = testHelper.initialBlogs.map(
-      (blogData) => {
-        return api //Don't forget the return here PLEASE
-          .post('/api/blogs')
-          .send(blogData)
-          .set('Authorization', `Bearer ${validToken}`)
-          .expect(201)
-          .expect('Content-Type', /application\/json/)
-      }
-    )
-    await Promise.all(blogCreationPromises)
+    await testHelper.setupTestDB(testHelper.initialUsers, testHelper.initialBlogs)
   })
 
   test('blogs are returned as json', async () => {
