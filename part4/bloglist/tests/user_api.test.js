@@ -56,7 +56,7 @@ describe('when there are initially users in the DB', () => {
       .expect('Content-Type', /application\/json/)
 
     const usersAtEnd = await testHelper.getAllUsersAsJSON()
-    assert(result.body.error.includes('expected `username` to be unique'))
+    assert(result.body.error.includes('`username` to be unique')) //The capitalization is sometimes different in this mongo error?
 
     assert.strictEqual(usersAtEnd.length, usersAtStart.length)
   })
