@@ -1,28 +1,34 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
 
+//The user that will submit our test blogs, etc
 const testUser = {
-  name: 'Mr. Test',
-  username: 'test123',
-  password: 'chunter2'
+  username: 'e2e',
+  name: 'End To End Tester',
+  password: '123',
+}
+
+async function loginWithUser(page, user) {
+  await expect(page.getByText('Log in')).toBeVisible()
+  await page.getByTestId('login-username').fill(user.username)
+  await page.getByTestId('login-password').fill(user.password)
+  await page.getByTestId('login-submit-btn').click()
+  page.pause()
+  await expect(page.getByTestId('welcome-msg')).toBeVisible()
 }
 
 const testBlog = {
-  "title": `Deer licking salt`,
-  "author": `Roberto`,
-  "url": `www.salt.com`,
-  "likes": 7,
-  "user": {
-    "username": `test123`,
-    "name": `Mr. Test`,
-    "id": `66ae6264c01f975e8e05ecee`
-  }
+  title: "End to End Testing Blog",
+  author: "liquidman",
+  url: "https://fullstackopen.com/en/part4/testing_the_backend#exercises-4-8-4-12",
+  likes: 1,
+  __v: 0
 }
 
 describe('Bloglist app', () => {
   beforeEach(async ({ page, request }) => {
-    //Delete everything, so we start from a fresh slate to test with
-    await request.post('/api/testing/reset')
-    //But add a test user so we can actually do things
+    //This endpoint wipes the database and starts over with a set of preloaded testing data
+    await request.post('/api/testing/seed')
+    //But add a test user with known credentials so we can actually do things on our end
     await request.post('/api/users', {
       data: testUser
     })
@@ -64,11 +70,17 @@ describe('Bloglist app', () => {
 
   describe('When logged in', () => {
     beforeEach(async ({ page }) => {
-      await expect(page.getByText('Log in')).toBeVisible()
-      await page.getByTestId('login-username').fill(testUser.username)
-      await page.getByTestId('login-password').fill(testUser.password)
-      await page.getByTestId('login-submit-btn').click()
-      await expect(page.getByTestId('welcome-msg')).toBeVisible()
+      loginWithUser(page, testUser)
+    })
+
+    test('a blog can be liked', async ({ page }) => {
+      const firstBlog = page.locator('.blogDiv').first();
+      await firstBlog.locator('.toggleButton').click();
+
+      const amtLikesBefore = firstBlog.locator('.likesAmount').innerText();
+      await firstBlog.locator('.likeButton').click();
+      const amtLikesAfter = firstBlog.locator('.likesAmount').innerText();
+      expect(amtLikesAfter === amtLikesBefore + 1);
     })
 
     test('a new blog can be created', async ({ page }) => {

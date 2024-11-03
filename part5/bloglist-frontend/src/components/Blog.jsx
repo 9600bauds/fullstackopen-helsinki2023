@@ -53,7 +53,7 @@ const Blog = ({ blog, user, addLike, deleteBlog }) => {
         {blog.url}
       </div>
       <div className='blogLikes'>
-        Likes: <span className='likesAmount'>{blog.likes}</span> <button onClick={onLikeButtonClicked}>like!</button>
+        Likes: <span className='likesAmount'>{blog.likes}</span> <button className='likeButton' onClick={onLikeButtonClicked}>like!</button>
       </div>
       <div className='blogSubmittedBy'>
         submitted by <span className='submittedByName'>{blog.user.name}</span>
