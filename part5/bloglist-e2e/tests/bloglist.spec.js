@@ -72,18 +72,17 @@ describe('Bloglist app', () => {
     })
 
     test('a new blog can be created', async ({ page }) => {
-      await page.getByText('Add New Blog').click()
+      if (!await page.locator('#title').isVisible()) {
+        await page.getByText('Add New Blog').click();
+      }
       await page.locator('#title').fill(testBlog.title);
       await page.locator('#author').fill(testBlog.author);
       await page.locator('#url').fill(testBlog.url);
 
       await page.locator('button[type="submit"]').click();
 
-      // This will pause the test and open the Playwright Inspector
-      //await page.pause();
-
       await expect(page.getByText('Added a new blog')).toBeVisible()
-      await expect(page.locator('.blogTitle')).toHaveText(testBlog.title);
+      await expect(page.locator('.blogTitle', { hasText: testBlog.title })).toBeVisible();
     })
   })
 })
