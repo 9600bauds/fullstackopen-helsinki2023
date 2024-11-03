@@ -4,25 +4,14 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const testHelper = require('./test_helper')
-const bcrypt = require('bcrypt')
+const testingData = require('./testing_data')
 const User = require('../models/user')
 
 const api = supertest(app)
 
 describe('when there are initially users in the DB', () => {
   beforeEach(async () => {
-    await User.deleteMany({})
-
-    const promiseArray = testHelper.initialUsers.map(
-      (userData) => {
-        return api //Don't forget the return here PLEASE
-          .post('/api/users')
-          .send(userData)
-          .expect(201)
-          .expect('Content-Type', /application\/json/)
-      }
-    )
-    await Promise.all(promiseArray)
+    await testingData.setupTestDB(testingData.initialUsers, testingData.initialBlogs)
   })
 
   test('creation succeeds with a fresh username', async () => {
@@ -30,7 +19,7 @@ describe('when there are initially users in the DB', () => {
 
     await api
       .post('/api/users')
-      .send(testHelper.newUser)
+      .send(testingData.newUser)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
@@ -39,7 +28,7 @@ describe('when there are initially users in the DB', () => {
     assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
 
     const usernames = usersAtEnd.map(u => u.username)
-    assert(usernames.includes(testHelper.newUser.username))
+    assert(usernames.includes(testingData.newUser.username))
   })
 
   test('creation fails with proper statuscode and message if username already taken', async () => {
@@ -47,7 +36,7 @@ describe('when there are initially users in the DB', () => {
 
     const alreadyExistingUsername = usersAtStart[0].username;
     //Use the spread operator to get a copy of newUser, but with username modified
-    const newUserWithRepeatUsername = { ...testHelper.newUser, username: alreadyExistingUsername }
+    const newUserWithRepeatUsername = { ...testingData.newUser, username: alreadyExistingUsername }
 
     const result = await api
       .post('/api/users')
@@ -65,7 +54,7 @@ describe('when there are initially users in the DB', () => {
     const usersAtStart = await testHelper.getAllUsersAsJSON()
 
     //Use the spread operator to get a copy of newUser, but with username modified
-    const newUserWithShortUsername = { ...testHelper.newUser, username: 'me' }
+    const newUserWithShortUsername = { ...testingData.newUser, username: 'me' }
 
     const result = await api
       .post('/api/users')
@@ -83,7 +72,7 @@ describe('when there are initially users in the DB', () => {
     const usersAtStart = await testHelper.getAllUsersAsJSON()
 
     //Use the spread operator to get a copy of newUser, but with password modified
-    const newUserWithShortPassword = { ...testHelper.newUser, password: '2' }
+    const newUserWithShortPassword = { ...testingData.newUser, password: '2' }
 
     const result = await api
       .post('/api/users')

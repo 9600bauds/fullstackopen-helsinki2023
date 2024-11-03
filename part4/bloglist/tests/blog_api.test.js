@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const testHelper = require('./test_helper')
+const testingData = require('./testing_data')
 const Blog = require('../models/blog')
 
 const api = supertest(app)
@@ -12,7 +13,7 @@ const api = supertest(app)
 
 describe('with multiple test blogs saved', () => {
   beforeEach(async () => {
-    await testHelper.setupTestDB(testHelper.initialUsers, testHelper.initialBlogs)
+    await testingData.setupTestDB(testingData.initialUsers, testingData.initialBlogs)
   })
 
   test('blogs are returned as json', async () => {
@@ -34,7 +35,7 @@ describe('with multiple test blogs saved', () => {
   test('all the testing blogs are saved successfully', async () => {
     const response = await api.get('/api/blogs')
     const blogsReturned = response.body;
-    assert.strictEqual(blogsReturned.length, testHelper.initialBlogs.length)
+    assert.strictEqual(blogsReturned.length, testingData.initialBlogs.length)
   })
 
   describe('viewing a specific blog', () => {
@@ -97,7 +98,7 @@ describe('with multiple test blogs saved', () => {
 
     test('returns 403 if the user didn\'t create this blog', async () => {
       //We assume all blogs were created by the example user
-      const validTokenForSomeoneElse = await testHelper.getValidUserToken(testHelper.initialUsers[1]);
+      const validTokenForSomeoneElse = await testHelper.getValidUserToken(testingData.initialUsers[1]);
       const blogsAtFirst = await testHelper.getAllBlogsAsJSON()
       const blogID = blogsAtFirst[0].id;
 
@@ -148,14 +149,14 @@ describe('with multiple test blogs saved', () => {
       const validToken = await testHelper.getValidUserToken();
       await api
         .post('/api/blogs')
-        .send(testHelper.newBlog)
+        .send(testingData.newBlog)
         .set('Authorization', `Bearer ${validToken}`)
         .expect(201)
     })
 
     test('saves the content correctly', async () => {
       const validToken = await testHelper.getValidUserToken();
-      const sentBlog = testHelper.newBlog
+      const sentBlog = testingData.newBlog
       const response = await api
         .post('/api/blogs')
         .set('Authorization', `Bearer ${validToken}`)
@@ -173,7 +174,7 @@ describe('with multiple test blogs saved', () => {
       await api
         .post('/api/blogs')
         .set('Authorization', `Bearer ${validToken}`)
-        .send(testHelper.newBlog)
+        .send(testingData.newBlog)
       // I guess we just don't even save the return of this ^
       const blogsNow = await testHelper.getAllBlogsAsJSON();
       assert.strictEqual(blogsNow.length, blogsAtFirst.length + 1)
@@ -188,7 +189,7 @@ describe('with no blogs saved', () => {
   describe('saving a blog with missing fields', () => {
     test('a blog with undefined likes becomes a blog with 0 likes', async () => {
       const validToken = await testHelper.getValidUserToken();
-      let newBlogWithoutLikes = { ...testHelper.newBlog } //We clone this one, so we can mutate it
+      let newBlogWithoutLikes = { ...testingData.newBlog } //We clone this one, so we can mutate it
       delete newBlogWithoutLikes.likes;
       const response = await api
         .post('/api/blogs')
@@ -200,7 +201,7 @@ describe('with no blogs saved', () => {
 
     test('a blog with no URL returns 400 bad request', async () => {
       const validToken = await testHelper.getValidUserToken();
-      let newBlogWithoutURL = { ...testHelper.newBlog } //We clone this one, so we can mutate it
+      let newBlogWithoutURL = { ...testingData.newBlog } //We clone this one, so we can mutate it
       delete newBlogWithoutURL.url;
       await api
         .post('/api/blogs')
@@ -211,7 +212,7 @@ describe('with no blogs saved', () => {
 
     test('a blog with no title returns 400 bad request', async () => {
       const validToken = await testHelper.getValidUserToken();
-      let newBlogWithoutTitle = { ...testHelper.newBlog } //We clone this one, so we can mutate it
+      let newBlogWithoutTitle = { ...testingData.newBlog } //We clone this one, so we can mutate it
       delete newBlogWithoutTitle.title;
       await api
         .post('/api/blogs')
