@@ -14,6 +14,7 @@ blogsRouter.get('/', async (request, response) => {
 blogsRouter.get('/:id', async (request, response) => {
   const requestedId = request.params.id;
   const blog = await Blog.findById(requestedId)
+    .populate('user', { username: 1, name: 1 });
   if (blog) {
     response.json(blog)
   } else {
@@ -33,7 +34,9 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   }
   const blog = new Blog(blogObject)
 
-  const savedBlog = await blog.save();
+  const savedBlog = await blog
+    .save()
+    .then(savedDoc => savedDoc.populate('user', { username: 1, name: 1 })); //Theoretically this prevents needing a second DB call?
 
   //Update using the atomic operation $push, to prevent race conditions
   await User.updateOne({ _id: request.user.id }, { $push: { blogs: savedBlog._id } });
