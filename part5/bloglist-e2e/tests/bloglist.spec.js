@@ -141,5 +141,24 @@ describe('Bloglist app', () => {
 
       await expect(firstBlog.locator('.blogDeleteButton')).not.toBeVisible()
     })
+
+    test('blogs are sorted by order of likes', async ({ page }) => {
+      //I am not entirely sure why this is needed. But without it, it seems the test finishes immediately and beforeEach() fails.
+      //Apparently the blogs need time to finish loading? Or at least until DOM can see them?
+      await page.waitForSelector('.blogDiv')
+
+      const allBlogs = await page.locator('.blogDiv').all();
+
+      let lastLikes = Number.MAX_SAFE_INTEGER;
+      for (const blog of allBlogs) {
+        //This one is tricky because likes are only shown while expanded.
+        //We need to expand the blog to see the likes; even though that info is accessible to the react component, we live in the DOM
+        await blog.locator('.toggleButton').click();
+        const currLikes = parseInt(await blog.locator('.likesAmount').innerText());
+        //console.log("Last likes:", lastLikes, " current likes:", currLikes) //This shows in NODE.JS's console, not in the browser's console!!
+        expect(currLikes <= lastLikes);
+        lastLikes = currLikes;
+      }
+    })
   })
 })
