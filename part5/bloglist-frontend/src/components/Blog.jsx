@@ -46,7 +46,7 @@ const Blog = ({ blog, user, addLike, deleteBlog }) => {
     );
   }
   return (
-    <div className='blogDiv' style={blogStyle}>
+    <div className='blogDiv expanded' style={blogStyle}>
       <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
       <button className='toggleButton' onClick={toggleExpanded}>hide</button>
       <div className='blogUrl'>

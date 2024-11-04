@@ -7,21 +7,54 @@ const testUser = {
   password: '123',
 }
 
-async function loginWithUser(page, user) {
-  await expect(page.getByText('Log in')).toBeVisible()
-  await page.getByTestId('login-username').fill(user.username)
-  await page.getByTestId('login-password').fill(user.password)
-  await page.getByTestId('login-submit-btn').click()
-  page.pause()
-  await expect(page.getByTestId('welcome-msg')).toBeVisible()
-}
-
 const testBlog = {
   title: "End to End Testing Blog",
   author: "liquidman",
   url: "https://fullstackopen.com/en/part4/testing_the_backend#exercises-4-8-4-12",
   likes: 1,
   __v: 0
+}
+
+async function loginWithUser(page, user) {
+  await expect(page.getByText('Log in')).toBeVisible()
+  await page.getByTestId('login-username').fill(user.username)
+  await page.getByTestId('login-password').fill(user.password)
+  await page.getByTestId('login-submit-btn').click()
+
+  await expect(page.getByTestId('welcome-msg')).toBeVisible()
+}
+
+//Assumes we are already logged in
+async function addBlog(page, blogData) {
+  if (!await page.locator('#title').isVisible()) {
+    await page.getByText('Add New Blog').click();
+    await expect(page.locator('#title')).toBeVisible()
+  }
+
+  await page.locator('#title').fill(blogData.title);
+  await page.locator('#author').fill(blogData.author);
+  await page.locator('#url').fill(blogData.url);
+
+  await page.locator('button[type="submit"]').click();
+
+  //This query tries to find the blog we submitted.
+  const submittedBlog = page.locator('.blogDiv').filter({
+    has: page.locator('span.blogTitle', { hasText: blogData.title }),
+    has: page.locator('span.blogAuthor', { hasText: blogData.author })
+  });
+  await expect(submittedBlog).toBeVisible();
+  return submittedBlog; //Returns the locator, not the html or anything like that.
+}
+
+//Expands the blog. Does nothing if already expanded.
+async function expandBlog(blogLocator) {
+  //Checking if a locator has a class, as per ggorlen: https://stackoverflow.com/a/76038252
+  const isBlogExpanded = await blogLocator.evaluate(blog => blog.classList.contains(/expanded/));
+
+  if (!isBlogExpanded) {
+    await blogLocator.locator('.toggleButton').click();
+    await expect(blogLocator).toHaveClass(/expanded/);
+  }
 }
 
 describe('Bloglist app', () => {
@@ -84,17 +117,21 @@ describe('Bloglist app', () => {
     })
 
     test('a new blog can be created', async ({ page }) => {
-      if (!await page.locator('#title').isVisible()) {
-        await page.getByText('Add New Blog').click();
-      }
-      await page.locator('#title').fill(testBlog.title);
-      await page.locator('#author').fill(testBlog.author);
-      await page.locator('#url').fill(testBlog.url);
+      const submittedBlogLocator = await addBlog(page, testBlog);
 
-      await page.locator('button[type="submit"]').click();
+      await expect(submittedBlogLocator).toBeVisible(); //addBlog already checks this, but let's explicitly doublecheck anyways.
+    })
 
-      await expect(page.getByText('Added a new blog')).toBeVisible()
-      await expect(page.locator('.blogTitle', { hasText: testBlog.title })).toBeVisible();
+    test('a user can delete their own blog', async ({ page }) => {
+      const submittedBlogLocator = await addBlog(page, testBlog);
+
+      expandBlog(submittedBlogLocator);
+
+      const deleteButtonLocator = submittedBlogLocator.locator('.blogDeleteButton');
+      await expect(deleteButtonLocator).toBeVisible();
+      page.once('dialog', dialog => dialog.accept()); //Automatically accept the confirm dialog, but only 1 time
+      await deleteButtonLocator.click();
+      await expect(submittedBlogLocator).not.toBeVisible()
     })
   })
 })
