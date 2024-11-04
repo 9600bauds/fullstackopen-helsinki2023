@@ -108,7 +108,7 @@ describe('Bloglist app', () => {
 
     test('a blog can be liked', async ({ page }) => {
       const firstBlog = page.locator('.blogDiv').first();
-      await firstBlog.locator('.toggleButton').click();
+      expandBlog(firstBlog);
 
       const amtLikesBefore = firstBlog.locator('.likesAmount').innerText();
       await firstBlog.locator('.likeButton').click();
@@ -124,7 +124,6 @@ describe('Bloglist app', () => {
 
     test('a user can delete their own blog', async ({ page }) => {
       const submittedBlogLocator = await addBlog(page, testBlog);
-
       expandBlog(submittedBlogLocator);
 
       const deleteButtonLocator = submittedBlogLocator.locator('.blogDeleteButton');
@@ -132,6 +131,15 @@ describe('Bloglist app', () => {
       page.once('dialog', dialog => dialog.accept()); //Automatically accept the confirm dialog, but only 1 time
       await deleteButtonLocator.click();
       await expect(submittedBlogLocator).not.toBeVisible()
+    })
+
+    test('delete button does not appear for blogs not submitted by the user', async ({ page }) => {
+      const firstBlog = page.locator('.blogDiv').first();
+      expandBlog(firstBlog);
+      //No blogs should have been submitted by the test user yet, but let's make sure
+      await expect(firstBlog.locator('.submittedByName')).not.toHaveText(testUser.name);
+
+      await expect(firstBlog.locator('.blogDeleteButton')).not.toBeVisible()
     })
   })
 })
