@@ -1,6 +1,7 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
 
 //The user that will submit our test blogs, etc
+//Note that they are not in the testing database and has not submitted anything by default.
 const testUser = {
   username: 'e2e',
   name: 'End To End Tester',
@@ -15,6 +16,10 @@ const testBlog = {
   __v: 0
 }
 
+/**
+ * Logs in to the application with the specified user credentials.
+ * Waits for and confirms successful login via welcome message.
+ */
 async function loginWithUser(page, user) {
   await expect(page.getByText('Log in')).toBeVisible()
   await page.getByTestId('login-username').fill(user.username)
@@ -24,7 +29,11 @@ async function loginWithUser(page, user) {
   await expect(page.getByTestId('welcome-msg')).toBeVisible()
 }
 
-//Assumes we are already logged in
+/**
+ * Creates a new blog entry. If the new blog form is not visible, clicks to show it.
+ * Assumes we are already logged in.
+ * Waits for confirmation that the blog was added successfully.
+ */
 async function addBlog(page, blogData) {
   if (!await page.locator('#title').isVisible()) {
     await page.getByText('Add New Blog').click();
@@ -46,7 +55,10 @@ async function addBlog(page, blogData) {
   return submittedBlog; //Returns the locator, not the html or anything like that.
 }
 
-//Expands the blog. Does nothing if already expanded.
+/**
+ * Expands a blog entry if it's not already expanded.
+ * Checks for 'expanded' class and clicks the toggle button if necessary.
+ */
 async function expandBlog(blogLocator) {
   //Checking if a locator has a class, as per ggorlen: https://stackoverflow.com/a/76038252
   const isBlogExpanded = await blogLocator.evaluate(blog => blog.classList.contains(/expanded/));
