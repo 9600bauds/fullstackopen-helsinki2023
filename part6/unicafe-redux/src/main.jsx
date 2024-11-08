@@ -13,15 +13,27 @@ const App = () => {
     });
   };
 
+  const ok = () => {
+    store.dispatch({
+      type: "OK",
+    });
+  };
+
+  const bad = () => {
+    store.dispatch({
+      type: "BAD",
+    });
+  };
+
   return (
     <div>
       <button onClick={good}>good</button>
-      <button>ok</button>
-      <button>bad</button>
+      <button onClick={ok}>ok</button>
+      <button onClick={bad}>bad</button>
       <button>reset stats</button>
       <div>good {store.getState().good}</div>
-      <div>ok</div>
-      <div>bad</div>
+      <div>ok {store.getState().ok}</div>
+      <div>bad {store.getState().bad}</div>
     </div>
   );
 };
