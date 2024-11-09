@@ -16,18 +16,27 @@ const App = () => {
     dispatch(createAnecdoteAction(content));
   };
 
+  //Rather than try to make sure the store's state is always sorted, I only sort them visually here.
+  //The exercise did not specify, so I believe this is acceptable, unless we need them to be sorted in the store for some reason
+  function drawAnecdotes(anecdotes) {
+    // Create a new sorted array instead of mutating the store's state, which is no bueno
+    const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes);
+
+    return sortedAnecdotes.map((anecdote) => (
+      <div key={anecdote.id}>
+        <div>{anecdote.content}</div>
+        <div>
+          has {anecdote.votes}
+          <button onClick={() => vote(anecdote.id)}>vote</button>
+        </div>
+      </div>
+    ));
+  }
+
   return (
     <div>
       <h2>Anecdotes</h2>
-      {anecdotes.map((anecdote) => (
-        <div key={anecdote.id}>
-          <div>{anecdote.content}</div>
-          <div>
-            has {anecdote.votes}
-            <button onClick={() => vote(anecdote.id)}>vote</button>
-          </div>
-        </div>
-      ))}
+      {drawAnecdotes(anecdotes)}
       <h2>create new</h2>
       <form onSubmit={submitNote}>
         <div>
