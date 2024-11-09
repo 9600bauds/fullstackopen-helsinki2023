@@ -22,8 +22,32 @@ const initialState = anecdotesAtStart.map(asObject);
 const reducer = (state = initialState, action) => {
   console.log("state now: ", state);
   console.log("action", action);
+  switch (action.type) {
+    case "NEW_ANECDOTE":
+      return [...state, action.payload]; //todo
+    case "VOTE":
+      //lint gets really mad when I declare things inside a switch. Where should this go instead?
+      const id = action.payload.id;
+      const anecdoteToChange = state.find((anecdote) => anecdote.id === id);
+      //Use the spread operator to create a new object instead of mutating the old one
+      const changedAnecdote = {
+        ...anecdoteToChange,
+        votes: anecdoteToChange.votes + 1,
+      };
+      //Gotta do this map trickery to create a new state instead of mutating the old one
+      return state.map((anecdote) =>
+        anecdote.id !== id ? anecdote : changedAnecdote,
+      );
+    default:
+      return state;
+  }
+};
 
-  return state;
+export const voteAction = (id) => {
+  return {
+    type: "VOTE",
+    payload: { id },
+  };
 };
 
 export default reducer;
