@@ -1,4 +1,4 @@
-const anecdotesAtStart = [
+const initialContents = [
   "If it hurts, do it more often",
   "Adding manpower to a late software project makes it later!",
   "The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.",
@@ -9,15 +9,15 @@ const anecdotesAtStart = [
 
 const getId = () => (100000 * Math.random()).toFixed(0);
 
-const asObject = (anecdote) => {
+const contentToAnecdoteObject = (content) => {
   return {
-    content: anecdote,
+    content,
     id: getId(),
     votes: 0,
   };
 };
 
-const initialState = anecdotesAtStart.map(asObject);
+const initialState = initialContents.map(contentToAnecdoteObject);
 
 const reducer = (state = initialState, action) => {
   console.log("state now: ", state);
@@ -41,6 +41,13 @@ const reducer = (state = initialState, action) => {
     default:
       return state;
   }
+};
+
+export const createAnecdoteAction = (content) => {
+  return {
+    type: "NEW_ANECDOTE",
+    payload: contentToAnecdoteObject(content),
+  };
 };
 
 export const voteAction = (id) => {

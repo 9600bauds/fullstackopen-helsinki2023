@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { voteAction } from "./reducers/anecdoteReducer";
+import { createAnecdoteAction, voteAction } from "./reducers/anecdoteReducer";
 
 const App = () => {
   const anecdotes = useSelector((state) => state);
@@ -7,6 +7,13 @@ const App = () => {
 
   const vote = (id) => {
     dispatch(voteAction(id));
+  };
+
+  const submitNote = (event) => {
+    event.preventDefault(); //Do not refresh, do not pass go, do not collect 200$
+    const content = event.target.content.value;
+    event.target.content.value = ""; //Clear the text from the field input
+    dispatch(createAnecdoteAction(content));
   };
 
   return (
@@ -22,11 +29,11 @@ const App = () => {
         </div>
       ))}
       <h2>create new</h2>
-      <form>
+      <form onSubmit={submitNote}>
         <div>
-          <input />
+          <input name="content" />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
       </form>
     </div>
   );
