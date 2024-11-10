@@ -6,7 +6,6 @@ const FilterInput = () => {
 
   const handleChange = (event) => {
     const newFilter = event.target.value;
-    console.log("Dispatching setFilter", newFilter);
     dispatch(setFilter(newFilter));
   };
   const style = {

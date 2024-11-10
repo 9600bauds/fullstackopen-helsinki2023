@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux";
-import { createAnecdoteAction } from "../reducers/anecdoteReducer";
+import { createAnecdote } from "../reducers/anecdoteReducer";
 
 const NewAnecdoteForm = () => {
   const dispatch = useDispatch();
@@ -9,7 +9,7 @@ const NewAnecdoteForm = () => {
     const content = event.target.content.value;
     if (!content) return; //Show some message + more validation here?
     event.target.content.value = ""; //Clear the text from the field input
-    dispatch(createAnecdoteAction(content));
+    dispatch(createAnecdote(content));
   };
 
   return (

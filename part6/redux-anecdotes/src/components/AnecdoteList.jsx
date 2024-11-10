@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { voteAction } from "../reducers/anecdoteReducer";
+import { vote } from "../reducers/anecdoteReducer";
 
 const AnecdoteList = () => {
   const dispatch = useDispatch();
@@ -14,8 +14,8 @@ const AnecdoteList = () => {
     );
   });
 
-  const vote = (id) => {
-    dispatch(voteAction(id));
+  const onClickVoteButton = (id) => {
+    dispatch(vote(id));
   };
 
   //Rather than try to make sure the store's state is always sorted, I only sort them visually here.
@@ -32,7 +32,7 @@ const AnecdoteList = () => {
         <div>{anecdote.content}</div>
         <div>
           has {anecdote.votes}
-          <button onClick={() => vote(anecdote.id)}>vote</button>
+          <button onClick={() => onClickVoteButton(anecdote.id)}>vote</button>
         </div>
       </div>
     ));

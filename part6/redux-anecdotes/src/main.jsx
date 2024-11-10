@@ -12,7 +12,6 @@ const store = configureStore({
     filter: filterReducer,
   },
 });
-store.subscribe(() => console.log("Store is now", store.getState()));
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>
