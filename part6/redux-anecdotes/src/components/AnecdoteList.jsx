@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { vote } from "../reducers/anecdoteReducer";
+import { showNotification } from "../reducers/notificationReducer";
 
 const AnecdoteList = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,8 @@ const AnecdoteList = () => {
 
   const onClickVoteButton = (id) => {
     dispatch(vote(id));
+    const theAnecdote = anecdotes.find((a) => a.id === id); //Worth noting that this returns the anecdote BEFORE its votes are increased
+    dispatch(showNotification(`You voted for: '${theAnecdote.content}'`));
   };
 
   //Rather than try to make sure the store's state is always sorted, I only sort them visually here.
