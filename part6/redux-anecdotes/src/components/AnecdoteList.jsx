@@ -5,7 +5,8 @@ const AnecdoteList = () => {
   const dispatch = useDispatch();
   //const anecdotes = useSelector((state) => state.anecdotes);
   const anecdotes = useSelector((state) => {
-    if (state.filter === "ALL") {
+    if (!state.filter) {
+      //If the filter is null, it is treated as no filter.
       return state.anecdotes;
     }
     return state.anecdotes.filter((anecdote) =>

@@ -1,17 +1,16 @@
-const filterReducer = (state = "ALL", action) => {
-  switch (action.type) {
-    case "SET_FILTER":
+import { createSlice } from "@reduxjs/toolkit";
+
+const filterSlice = createSlice({
+  name: "filter",
+  initialState: null, //If the filter is null, it is treated as no filter.
+  reducers: {
+    setFilter(state, action) {
+      //Why can't we simply do state = action.payload? I thought Immer would let us do that, now?
+      //Javascript frameworks are fickle lines in the sand.
       return action.payload;
-    default:
-      return state;
-  }
-};
+    },
+  },
+});
 
-export const setFilter = (newFilter) => {
-  return {
-    type: "SET_FILTER",
-    payload: newFilter,
-  };
-};
-
-export default filterReducer;
+export const { setFilter } = filterSlice.actions;
+export default filterSlice.reducer;
