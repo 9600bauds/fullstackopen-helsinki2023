@@ -1,6 +1,5 @@
 import { useDispatch } from "react-redux";
-import { appendAnecdotes } from "../reducers/anecdoteReducer";
-import anecdoteService from "../services/anecdotes";
+import { createAnecdote } from "../reducers/anecdoteReducer";
 
 const NewAnecdoteForm = () => {
   const dispatch = useDispatch();
@@ -11,8 +10,7 @@ const NewAnecdoteForm = () => {
     if (!content) return; //Show some message + more validation here?
     event.target.content.value = ""; //Clear the text from the field input
 
-    const createdAnecdote = await anecdoteService.createNew(content);
-    dispatch(appendAnecdotes(createdAnecdote));
+    dispatch(createAnecdote(content));
   };
 
   return (
