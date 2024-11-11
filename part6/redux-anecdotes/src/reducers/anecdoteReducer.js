@@ -1,23 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const getId = () => (100000 * Math.random()).toFixed(0);
-
-const contentToAnecdoteObject = (content) => {
-  return {
-    content,
-    id: getId(),
-    votes: 0,
-  };
-};
-
 const anecdoteSlice = createSlice({
   name: "anecdotes",
   initialState: [],
   reducers: {
-    createAnecdote(state, action) {
-      const newAnecdote = contentToAnecdoteObject(action.payload);
-      state.push(newAnecdote); //Will immer play nice and actually let me mutate the state this time?
-    },
     appendAnecdotes(state, action) {
       state.push(action.payload);
     },
@@ -41,6 +27,5 @@ const anecdoteSlice = createSlice({
   },
 });
 
-export const { createAnecdote, appendAnecdotes, setAnecdotes, vote } =
-  anecdoteSlice.actions;
+export const { appendAnecdotes, setAnecdotes, vote } = anecdoteSlice.actions;
 export default anecdoteSlice.reducer;

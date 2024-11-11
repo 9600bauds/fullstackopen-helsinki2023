@@ -1,15 +1,18 @@
 import { useDispatch } from "react-redux";
-import { createAnecdote } from "../reducers/anecdoteReducer";
+import { appendAnecdotes } from "../reducers/anecdoteReducer";
+import anecdoteService from "../services/anecdotes";
 
 const NewAnecdoteForm = () => {
   const dispatch = useDispatch();
 
-  const submitAnecdote = (event) => {
+  const submitAnecdote = async (event) => {
     event.preventDefault(); //Do not refresh, do not pass go, do not collect 200$
     const content = event.target.content.value;
     if (!content) return; //Show some message + more validation here?
     event.target.content.value = ""; //Clear the text from the field input
-    dispatch(createAnecdote(content));
+
+    const createdAnecdote = await anecdoteService.createNew(content);
+    dispatch(appendAnecdotes(createdAnecdote));
   };
 
   return (
