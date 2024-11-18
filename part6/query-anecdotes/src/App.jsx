@@ -3,6 +3,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import AnecdoteForm from "./components/AnecdoteForm";
 import Notification from "./components/Notification";
 import { createAnecdote, getAnecdotes, updateAnecdote } from "./requests";
+import { useNotificationDispatch } from "./NotificationContext";
 
 const App = () => {
   const queryClient = useQueryClient();
@@ -14,11 +15,31 @@ const App = () => {
   });
   const anecdotes = result.data;
 
+  const notificationDispatch = useNotificationDispatch();
+  const showNotification = (message, seconds = 5) => {
+    notificationDispatch({ type: "SET", payload: message });
+
+    // Effectively refresh the timer if a notification already existed
+    if (window.notificationTimeout) {
+      clearTimeout(window.notificationTimeout);
+    }
+
+    window.notificationTimeout = setTimeout(() => {
+      notificationDispatch({ type: "CLEAR" });
+    }, seconds * 1000);
+  };
+
   const newAnecdoteMutation = useMutation({
     mutationFn: createAnecdote,
     onSuccess: (newAnecdote) => {
       const anecdotes = queryClient.getQueryData(["anecdotes"]);
       queryClient.setQueryData(["anecdotes"], anecdotes.concat(newAnecdote));
+      showNotification(`Added new anecdote: ${newAnecdote.content}`);
+    },
+    onError: (error) => {
+      showNotification(
+        `${error.response.statusText}: ${error.response.data.error}`,
+      );
     },
   });
 
@@ -33,6 +54,14 @@ const App = () => {
         a.id === updatedAnecdote.id ? updatedAnecdote : a,
       );
       queryClient.setQueryData(["anecdotes"], updatedAnecdotes);
+      showNotification(
+        `Voted on anecdote: ${updatedAnecdote.content}, which now has ${updateAnecdote.votes} votes!`,
+      );
+    },
+    onError: (error) => {
+      showNotification(
+        `${error.response.statusText}: ${error.response.data.error}`,
+      );
     },
   });
 
