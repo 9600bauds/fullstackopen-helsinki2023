@@ -19,6 +19,10 @@ const anecdoteSlice = createSlice({
         ...anecdoteToChange,
         votes: anecdoteToChange.votes + 1,
       };
+      //Tell the service to update the database.
+      //Ideally we would use some sort of optimistic updating here that checks the server's returned data.
+      //But since the assignment didn't ask for that, we don't care too much.
+      anecdoteService.update(id, changedAnecdote);
       //Gotta do this map trickery to create a new state instead of mutating the old one.
       //Immer doesn't help here either.
       return state.map((anecdote) =>
