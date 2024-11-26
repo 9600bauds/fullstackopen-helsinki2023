@@ -27,15 +27,15 @@ export const NewAnecdoteForm = ({ addNew }) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input {...content} />
+          <input {...content.toInput()} />
         </div>
         <div>
           author
-          <input {...author} />
+          <input {...author.toInput()} />
         </div>
         <div>
           url for more info
-          <input {...info} />
+          <input {...info.toInput()} />
         </div>
         <button>create</button>
       </form>
