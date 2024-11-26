@@ -15,7 +15,7 @@ const useField = (type) => {
   }
 
   const reset = () => {
-    setValue()
+    setValue('')
   }
 
   return {

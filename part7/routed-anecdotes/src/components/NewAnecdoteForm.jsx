@@ -15,6 +15,12 @@ export const NewAnecdoteForm = ({ addNew }) => {
     });
   };
 
+  const reset = () => {
+    content.reset()
+    author.reset()
+    info.reset()
+  }
+
   return (
     <div>
       <h2>create a new anecdote</h2>
@@ -33,6 +39,7 @@ export const NewAnecdoteForm = ({ addNew }) => {
         </div>
         <button>create</button>
       </form>
+      <button onClick={() => reset()}>reset</button>
     </div>
   );
 
