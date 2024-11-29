@@ -5,13 +5,21 @@
   "scripts": {
     "test": "playwright test",
     "test:debug": "playwright test --debug",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix"
   },
   "author": "9600bauds",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@eslint/js": "^9.15.0",
     "@playwright/test": "^1.48.2",
-    "@types/node": "^22.8.1"
+    "@types/node": "^22.8.1",
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.12.0",
+    "prettier": "^3.4.1"
   }
 }
