@@ -1,28 +1,28 @@
-
-const _ = require('lodash');
+const _ = require("lodash");
 
 const dummy = (blogs) => {
-  return 1
-}
+  return 1;
+};
 
 const totalLikes = (blogs) => {
-  const summer = (sum, blog) => { //this const named during winter
-    return sum + blog.likes
-  }
+  const summer = (sum, blog) => {
+    //this const named during winter
+    return sum + blog.likes;
+  };
 
-  return blogs.reduce(summer, 0)
-}
+  return blogs.reduce(summer, 0);
+};
 
 const favoriteBlog = (blogs) => {
-  const maxxer = (max, blog) => { //chilling out maxxing relaxing all cool
+  const maxxer = (max, blog) => {
+    //chilling out maxxing relaxing all cool
     if (!max || blog.likes > max.likes) {
-      return blog
+      return blog;
     }
-    return max
-  }
-  return blogs.reduce(maxxer, null)
-}
-
+    return max;
+  };
+  return blogs.reduce(maxxer, null);
+};
 
 const mostBlogs = (blogs) => {
   const functionThatSumsBlogsPerAuthor = (blogsPerAuthor, blog) => {
@@ -32,7 +32,7 @@ const mostBlogs = (blogs) => {
     }
     blogsPerAuthor[thisAuthor] = blogsPerAuthor[thisAuthor] + 1;
     return blogsPerAuthor;
-  }
+  };
   const likesPerAuthorObj = blogs.reduce(functionThatSumsBlogsPerAuthor, []);
   // At this point, blogsPerAuthor is an object with one property per author.
   // Or an associative array. Apparently they're the same thing in JS.
@@ -46,8 +46,8 @@ const mostBlogs = (blogs) => {
       max = amount;
     }
   }
-  return { author: mostProlificAuthor, blogs: max }
-}
+  return { author: mostProlificAuthor, blogs: max };
+};
 
 const mostLikes = (blogs) => {
   const functionThatLikesBlogsPerAuthor = (likesPerAuthorObj, blog) => {
@@ -57,24 +57,27 @@ const mostLikes = (blogs) => {
     }
     likesPerAuthorObj[thisAuthor] = likesPerAuthorObj[thisAuthor] + blog.likes;
     return likesPerAuthorObj;
-  }
+  };
   const likesPerAuthorObj = blogs.reduce(functionThatLikesBlogsPerAuthor, []);
   const likesPerAuthorArray = Object.entries(likesPerAuthorObj);
-  let mostProlificAuthor = _.maxBy(likesPerAuthorArray, ([author, count]) => count)
+  let mostProlificAuthor = _.maxBy(
+    likesPerAuthorArray,
+    ([author, count]) => count,
+  );
   //There's got to be a better way to handle this. Should I even be returning an object with null values? Or just null?
   if (!mostProlificAuthor) {
     return {
-      "author": null,
-      "likes": null,
-    }
+      author: null,
+      likes: null,
+    };
   }
-  return { author: mostProlificAuthor[0], likes: mostProlificAuthor[1] }
-}
+  return { author: mostProlificAuthor[0], likes: mostProlificAuthor[1] };
+};
 
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
   mostBlogs,
-  mostLikes
-}
+  mostLikes,
+};

@@ -1,9 +1,9 @@
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    return authorization.substring(7) // Remove 'Bearer ' or 'bearer ' or any other combination of
+const getTokenFrom = (request) => {
+  const authorization = request.get("authorization");
+  if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
+    return authorization.substring(7); // Remove 'Bearer ' or 'bearer ' or any other combination of
   }
-  return null
-}
+  return null;
+};
 
-module.exports = { getTokenFrom }
+module.exports = { getTokenFrom };
