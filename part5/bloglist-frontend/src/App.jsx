@@ -1,38 +1,55 @@
 import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import Blog from './components/Blog';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import LoginForm from './components/LoginForm';
 import AddBlogForm from './components/AddBlogForm';
+import BlogList from './components/BlogList';
 import Togglable from './components/Togglable';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
+  const queryClient = useQueryClient();
+
   const [user, setUser] = useState(null);
-  
+  const blogQuery = useQuery({
+    queryKey: [`blogs`],
+    queryFn: async () => {
+      const fetchedBlogs = await blogService.getAll();
+      // We sort the blogs here, though perhaps we should be sorting them only visually in the bloglist element?
+      return fetchedBlogs.sort((a, b) => b.likes - a.likes);
+    }
+  });
+
+  const createBlogMutation = useMutation({
+    mutationFn: (newBlog) => blogService.create(newBlog),
+    onSuccess: () => {
+      // Invalidate and refetch ALL the blogs!! optimization pending.
+      queryClient.invalidateQueries([`blogs`]);
+    }
+  });
+  const createBlog = async (newBlogData) => {
+    const createdBlog = await createBlogMutation.mutateAsync(newBlogData);
+    return createdBlog;
+  };
+
   const successMessage = (msg) => toast.success(msg);
   const errorMessage = (msg) => toast.error(msg,  {
     duration: 6000,
   });
 
   const findBlogFromID = (id) => {
-    return blogs.find(b => b.id === id);
+    return blogQuery.data.find(b => b.id === id);
   };
+  //todo: this is broken, fix to use react query logic
   const updateBlogFromID = (id, newBlog) => {
-    setBlogs(blogs.map(blog => blog.id !== id ? blog : newBlog));
+    setBlogs(blogQuery.data.map(blog => blog.id !== id ? blog : newBlog));
   };
+  //todo: this is broken, fix to use react query logic
   const removeBlogFromID = (id) => {
-    setBlogs(blogs.filter(blog => blog.id !== id));
+    setBlogs(blogQuery.data.filter(blog => blog.id !== id));
   };
 
-  const createBlog = async (blogData) => {
-    //First we call the service to actually create the blog in the database (I guess no try/catch here?)
-    const newBlog = await blogService.create(blogData);
-    //If we get to this point, we succeeded! Let's update the blogs state with the new blog (don't mutate the state though)
-    setBlogs([...blogs, newBlog]);
-    return newBlog;
-  };
 
   const addLike = async (blogId) => {
     try{
@@ -84,22 +101,6 @@ const App = () => {
   };
 
   useEffect(() => {
-    blogService.getAll().then(blogs => {
-      blogs.sort((a, b) => {
-        if (a.likes > b.likes) {
-          return -1; //I guess -1 goes first?
-        }
-        if (a.likes < b.likes) {
-          return 1;
-        }
-        return 0;
-      });
-      setBlogs( blogs );
-    }
-    );  
-  }, []);
-
-  useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem(`blogAppUser`);
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
@@ -138,9 +139,12 @@ const App = () => {
           />
         </Togglable>
         <h2>All Blogs</h2>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} user={user} addLike={addLike} deleteBlog={deleteBlog}/>
-        )}
+        <BlogList
+          blogQuery={blogQuery}
+          user={user}
+          addLike={addLike}
+          deleteBlog={deleteBlog}
+        />
       </div>
     </>
   );
