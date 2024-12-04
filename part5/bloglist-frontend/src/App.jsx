@@ -1,5 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
-import toast from 'react-hot-toast';
+import { useEffect, useContext } from 'react';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import LoginForm from './components/LoginForm';
@@ -8,6 +7,8 @@ import BlogList from './components/BlogList';
 import Togglable from './components/Togglable';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import userContext from './contexts/userContext';
+import Notification from './components/Notification';
+import { useNotificationDispatch } from './contexts/notificationContext';
 
 const App = () => {
   const queryClient = useQueryClient();
@@ -60,11 +61,27 @@ const App = () => {
   };
 
   const [user, userDispatch] = useContext(userContext);
+  const notificationDispatch = useNotificationDispatch();
   
-  const successMessage = (msg) => toast.success(msg);
-  const errorMessage = (msg) => toast.error(msg,  {
-    duration: 6000,
-  });
+  const showNotification = (message, seconds=5, type=`success`) => {
+    notificationDispatch({ type: `SET`, payload: {message, type} });
+
+    // Effectively refresh the timer if a notification already existed
+    if (window.notificationTimeout) {
+      clearTimeout(window.notificationTimeout);
+    }
+
+    window.notificationTimeout = setTimeout(() => {
+      notificationDispatch({ type: `CLEAR` });
+    }, seconds * 1000);
+  };
+  
+  const successMessage = (msg) => {
+    showNotification(msg);
+  };
+  const errorMessage = (msg) => {
+    showNotification(msg, 6, `error`);
+  };
 
   const addLike = async (blogId) => {
     try{
@@ -124,6 +141,7 @@ const App = () => {
     return (
       <>
         <div>
+          <Notification />
           <h2>Log in to continue</h2>
           <LoginForm
             handleLogin={handleLogin}
@@ -140,6 +158,7 @@ const App = () => {
           Welcome {user.name}! If that isn&apos;t you, <button data-testid='logout-btn' onClick={logOut}>log out</button>
         </div>
         <hr/>
+        <Notification />
         <Togglable buttonLabel="add new blog">
           <h2>Create New Blog</h2>
           <AddBlogForm
