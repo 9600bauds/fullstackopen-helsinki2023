@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { BlogPropType } from '../propTypes/Blog.propTypes';
-import { UserPropType } from '../propTypes/User.propTypes';
+import { useUserContext } from '../contexts/userContext';
 
-const Blog = ({ blog, user, addLike, deleteBlog }) => {
+const Blog = ({ blog, addLike, deleteBlog }) => {
   const [expanded, setExpanded] = useState(false);
+
+  const user = useUserContext();
 
   const blogStyle = {
     paddingTop: 10,
@@ -65,7 +67,6 @@ const Blog = ({ blog, user, addLike, deleteBlog }) => {
 
 Blog.propTypes = {
   blog: BlogPropType.isRequired,
-  user: UserPropType.isRequired,
   addLike: PropTypes.func.isRequired,
   deleteBlog: PropTypes.func.isRequired
 };

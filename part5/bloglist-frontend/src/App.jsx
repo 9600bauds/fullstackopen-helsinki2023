@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import { useState, useEffect, useContext } from 'react';
+import toast from 'react-hot-toast';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import LoginForm from './components/LoginForm';
@@ -7,11 +7,12 @@ import AddBlogForm from './components/AddBlogForm';
 import BlogList from './components/BlogList';
 import Togglable from './components/Togglable';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import userContext from './contexts/userContext';
 
 const App = () => {
   const queryClient = useQueryClient();
 
-  const [user, setUser] = useState(null);
+  const [user, userDispatch] = useContext(userContext);
   const blogQuery = useQuery({
     queryKey: [`blogs`],
     queryFn: async () => {
@@ -88,7 +89,7 @@ const App = () => {
   };
 
   const onSuccessfulLogin = (user) => {
-    setUser(user);
+    userDispatch({ type: `SET`, payload: user });
     blogService.setToken(user.token);
     window.localStorage.setItem(
       `blogAppUser`, JSON.stringify(user)
@@ -96,7 +97,7 @@ const App = () => {
   };
 
   const logOut = () => {
-    setUser(null);
+    userDispatch({ type: `CLEAR` });
     window.localStorage.removeItem(`blogAppUser`);
   };
 
@@ -111,7 +112,6 @@ const App = () => {
   if (user === null) {
     return (
       <>
-        <div><Toaster/></div>
         <div>
           <h2>Log in to continue</h2>
           <LoginForm
@@ -124,7 +124,6 @@ const App = () => {
 
   return (
     <>
-      <div><Toaster/></div>
       <div>
         <div data-testid='welcome-msg'>
           Welcome {user.name}! If that isn&apos;t you, <button data-testid='logout-btn' onClick={logOut}>log out</button>
@@ -140,8 +139,8 @@ const App = () => {
         </Togglable>
         <h2>All Blogs</h2>
         <BlogList
-          blogQuery={blogQuery}
-          user={user}
+          blogs={blogQuery.data}
+          loading={blogQuery.isLoading}
           addLike={addLike}
           deleteBlog={deleteBlog}
         />

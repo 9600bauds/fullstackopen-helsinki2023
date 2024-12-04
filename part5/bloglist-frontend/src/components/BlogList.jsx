@@ -1,16 +1,20 @@
 import Blog from "./Blog";
 
-const BlogList = ({blogQuery, user, addLike, deleteBlog}) => {
-  if(blogQuery.loading){
-    return <div>Loading...</div>;
+const BlogList = ({blogs, isLoading, addLike, deleteBlog}) => {
+  if (isLoading) {
+    return <div>Loading blogs...</div>;
   }
+
+  if(!blogs){
+    return <div>No blogs found.</div>;
+  }
+
   return (
     <div>
-      {blogQuery.data.map(blog =>
-        <Blog key={blog.id} blog={blog} user={user} addLike={addLike} deleteBlog={deleteBlog}/>
+      {blogs.map(blog =>
+        <Blog key={blog.id} blog={blog} addLike={addLike} deleteBlog={deleteBlog}/>
       )}
     </div>
-
   );
 };
 export default BlogList;
