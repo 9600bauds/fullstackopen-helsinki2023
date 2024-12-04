@@ -12,54 +12,66 @@ import userContext from './contexts/userContext';
 const App = () => {
   const queryClient = useQueryClient();
 
-  const [user, userDispatch] = useContext(userContext);
   const blogQuery = useQuery({
     queryKey: [`blogs`],
-    queryFn: async () => {
-      const fetchedBlogs = await blogService.getAll();
-      // We sort the blogs here, though perhaps we should be sorting them only visually in the bloglist element?
-      return fetchedBlogs.sort((a, b) => b.likes - a.likes);
-    }
+    queryFn: blogService.getAll
   });
-
+  
   const createBlogMutation = useMutation({
-    mutationFn: (newBlog) => blogService.create(newBlog),
-    onSuccess: () => {
-      // Invalidate and refetch ALL the blogs!! optimization pending.
-      queryClient.invalidateQueries([`blogs`]);
+    mutationFn: (blogData) => blogService.create(blogData),
+    onSuccess: (createdBlog) => {
+      const oldState = queryClient.getQueryData([`blogs`]);
+      const newState = oldState.concat(createdBlog); //concat is atomic, does not mutate
+      queryClient.setQueryData([`blogs`], newState);
     }
   });
   const createBlog = async (newBlogData) => {
     const createdBlog = await createBlogMutation.mutateAsync(newBlogData);
     return createdBlog;
   };
+  
+  const updateBlogMutation = useMutation({
+    mutationFn: (blogData) => blogService.update(blogData.id, blogData),
+    onSuccess: (updatedBlog) => {
+      const oldState = queryClient.getQueryData([`blogs`]);
+      const newState = oldState.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog);
+      queryClient.setQueryData([`blogs`], newState);
+    }
+  });
+  const updateBlog = async (updatedBlogData) => {
+    const updatedBlog = await updateBlogMutation.mutateAsync(updatedBlogData);
+    return updatedBlog;
+  };
+  
+  const removeBlogMutation = useMutation({
+    mutationFn: (id) => blogService.remove(id),
+    onSuccess: (id) => {
+      const oldState = queryClient.getQueryData([`blogs`]);
+      const newState = oldState.filter(blog => blog.id !== id);
+      queryClient.setQueryData([`blogs`], newState);
+    }
+  });
+  const removeBlogFromID = async (id) => {
+    return await removeBlogMutation.mutateAsync(id);
+  };
+  
+  const findBlogFromID = (id) => {
+    return blogQuery.data.find(blog => blog.id === id);
+  };
 
+  const [user, userDispatch] = useContext(userContext);
+  
   const successMessage = (msg) => toast.success(msg);
   const errorMessage = (msg) => toast.error(msg,  {
     duration: 6000,
   });
 
-  const findBlogFromID = (id) => {
-    return blogQuery.data.find(b => b.id === id);
-  };
-  //todo: this is broken, fix to use react query logic
-  const updateBlogFromID = (id, newBlog) => {
-    setBlogs(blogQuery.data.map(blog => blog.id !== id ? blog : newBlog));
-  };
-  //todo: this is broken, fix to use react query logic
-  const removeBlogFromID = (id) => {
-    setBlogs(blogQuery.data.filter(blog => blog.id !== id));
-  };
-
-
   const addLike = async (blogId) => {
     try{
       const theBlog = findBlogFromID(blogId);
-      let newBlogObject = { ...theBlog };
+      let newBlogObject = { ...theBlog }; //This creates a clone
       newBlogObject.likes++;
-      const promise = blogService.update(blogId, newBlogObject);
-      const response = await promise;
-      updateBlogFromID(blogId, response);
+      updateBlog(newBlogObject);
     }
     catch(error){
       errorMessage(error.response.data.error);
@@ -68,8 +80,7 @@ const App = () => {
 
   const deleteBlog = async (blogId) => {   
     try{
-      await blogService.remove(blogId);
-      removeBlogFromID(blogId,);
+      removeBlogFromID(blogId);
     }
     catch(error){
       errorMessage(error.response.data.error);

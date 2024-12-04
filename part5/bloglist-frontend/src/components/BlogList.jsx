@@ -11,7 +11,7 @@ const BlogList = ({blogs, isLoading, addLike, deleteBlog}) => {
 
   return (
     <div>
-      {blogs.map(blog =>
+      {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
         <Blog key={blog.id} blog={blog} addLike={addLike} deleteBlog={deleteBlog}/>
       )}
     </div>

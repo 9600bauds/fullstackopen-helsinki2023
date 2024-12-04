@@ -35,8 +35,8 @@ const remove = async (id) => {
   };
 
   const request = axios.delete(`${baseUrl}/${id}`, config);
-  const response = await request;
-  return response.data;
+  await request;
+  return id;
 };
 
 export default { getAll, create, update, remove, setToken };
