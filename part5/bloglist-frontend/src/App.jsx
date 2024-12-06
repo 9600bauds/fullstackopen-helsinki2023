@@ -1,16 +1,17 @@
 import { useEffect, useContext } from 'react';
 import blogService from './services/blogs';
 import loginService from './services/login';
-import LoginForm from './components/LoginForm';
-import AddBlogForm from './components/AddBlogForm';
-import BlogList from './components/BlogList';
-import Togglable from './components/Togglable';
+import userService from './services/users';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import userContext from './contexts/userContext';
 import Notification from './components/Notification';
 import { useNotificationDispatch } from './contexts/notificationContext';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import Home from './views/Home';
+import LoginView from './views/LoginView';
 
 const App = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const blogQuery = useQuery({
@@ -127,53 +128,45 @@ const App = () => {
   const logOut = () => {
     userDispatch({ type: `CLEAR` });
     window.localStorage.removeItem(`blogAppUser`);
+    navigate(`/login`);
   };
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem(`blogAppUser`);
     if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      onSuccessfulLogin(user);
+      const loggedUser = JSON.parse(loggedUserJSON);
+      onSuccessfulLogin(loggedUser);
+    }
+    else{
+      navigate(`/login`);
     }
   }, []);
-
-  if (user === null) {
-    return (
-      <>
-        <div>
-          <Notification />
-          <h2>Log in to continue</h2>
-          <LoginForm
-            handleLogin={handleLogin}
-          />
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
       <div>
-        <div data-testid='welcome-msg'>
+        {user && <div data-testid='welcome-msg'>
           Welcome {user.name}! If that isn&apos;t you, <button data-testid='logout-btn' onClick={logOut}>log out</button>
-        </div>
-        <hr/>
+          <hr/>
+        </div>}
         <Notification />
-        <Togglable buttonLabel="add new blog">
-          <h2>Create New Blog</h2>
-          <AddBlogForm
-            successMessage={successMessage}
-            errorMessage={errorMessage}
-            createBlog={createBlog}
+        <Routes>
+          <Route path="/" 
+            element={
+              <Home 
+                blogs = {blogQuery.data}
+                isLoading = {blogQuery.isLoading}
+                successMessage={successMessage}
+                errorMessage={errorMessage}
+                addLike={addLike}
+                createBlog={createBlog}
+                deleteBlog={deleteBlog} />
+            }
           />
-        </Togglable>
-        <h2>All Blogs</h2>
-        <BlogList
-          blogs={blogQuery.data}
-          loading={blogQuery.isLoading}
-          addLike={addLike}
-          deleteBlog={deleteBlog}
-        />
+          <Route path="/login" element={<LoginView handleLogin={handleLogin} />} />
+        </Routes>
+
+
       </div>
     </>
   );
