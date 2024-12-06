@@ -9,6 +9,7 @@ import { useNotificationDispatch } from './contexts/notificationContext';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Home from './views/Home';
 import LoginView from './views/LoginView';
+import { Container } from 'react-bootstrap';
 
 const App = () => {
   const navigate = useNavigate();
@@ -143,7 +144,7 @@ const App = () => {
   }, []);
 
   return (
-    <>
+    <Container>
       <div>
         {user && <div data-testid='welcome-msg'>
           Welcome {user.name}! If that isn&apos;t you, <button data-testid='logout-btn' onClick={logOut}>log out</button>
@@ -168,7 +169,7 @@ const App = () => {
 
 
       </div>
-    </>
+    </Container>
   );
 };
 

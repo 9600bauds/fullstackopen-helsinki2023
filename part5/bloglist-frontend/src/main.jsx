@@ -5,6 +5,8 @@ import { UserContextProvider } from './contexts/userContext';
 import { NotificationContextProvider } from './contexts/notificationContext';
 import { BrowserRouter as Router } from 'react-router-dom';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById(`root`)).render(
