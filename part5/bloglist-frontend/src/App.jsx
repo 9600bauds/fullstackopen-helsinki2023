@@ -8,6 +8,7 @@ import Notification from './components/Notification';
 import { useNotificationDispatch } from './contexts/notificationContext';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Home from './views/Home';
+import UsersView from './views/UsersView';
 import LoginView from './views/LoginView';
 import { Container } from 'react-bootstrap';
 
@@ -18,6 +19,11 @@ const App = () => {
   const blogQuery = useQuery({
     queryKey: [`blogs`],
     queryFn: blogService.getAll
+  });
+
+  const usersQuery = useQuery({
+    queryKey: [`users`],
+    queryFn: userService.getAll
   });
   
   const createBlogMutation = useMutation({
@@ -165,6 +171,7 @@ const App = () => {
             }
           />
           <Route path="/login" element={<LoginView handleLogin={handleLogin} />} />
+          <Route path="/users" element={<UsersView users={usersQuery.data} isLoading={usersQuery.isLoading}/>} />
         </Routes>
 
 
