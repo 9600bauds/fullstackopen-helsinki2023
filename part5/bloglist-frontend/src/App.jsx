@@ -2,72 +2,31 @@ import { useEffect, useContext } from 'react';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import userService from './services/users';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import userContext from './contexts/userContext';
 import Notification from './components/Notification';
 import { useNotificationDispatch } from './contexts/notificationContext';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import Home from './views/Home';
 import UsersView from './views/UsersView';
 import LoginView from './views/LoginView';
 import { Container } from 'react-bootstrap';
+import { useBlogActions } from './hooks/useBlogActions';
 
 const App = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const blogQuery = useQuery({
     queryKey: [`blogs`],
     queryFn: blogService.getAll
   });
+  const { createBlog, updateBlog, removeBlog } = useBlogActions();
 
   const usersQuery = useQuery({
     queryKey: [`users`],
     queryFn: userService.getAll
   });
   
-  const createBlogMutation = useMutation({
-    mutationFn: (blogData) => blogService.create(blogData),
-    onSuccess: (createdBlog) => {
-      const oldState = queryClient.getQueryData([`blogs`]);
-      const newState = oldState.concat(createdBlog); //concat is atomic, does not mutate
-      queryClient.setQueryData([`blogs`], newState);
-    }
-  });
-  const createBlog = async (newBlogData) => {
-    const createdBlog = await createBlogMutation.mutateAsync(newBlogData);
-    return createdBlog;
-  };
-  
-  const updateBlogMutation = useMutation({
-    mutationFn: (blogData) => blogService.update(blogData.id, blogData),
-    onSuccess: (updatedBlog) => {
-      const oldState = queryClient.getQueryData([`blogs`]);
-      const newState = oldState.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog);
-      queryClient.setQueryData([`blogs`], newState);
-    }
-  });
-  const updateBlog = async (updatedBlogData) => {
-    const updatedBlog = await updateBlogMutation.mutateAsync(updatedBlogData);
-    return updatedBlog;
-  };
-  
-  const removeBlogMutation = useMutation({
-    mutationFn: (id) => blogService.remove(id),
-    onSuccess: (id) => {
-      const oldState = queryClient.getQueryData([`blogs`]);
-      const newState = oldState.filter(blog => blog.id !== id);
-      queryClient.setQueryData([`blogs`], newState);
-    }
-  });
-  const removeBlogFromID = async (id) => {
-    return await removeBlogMutation.mutateAsync(id);
-  };
-  
-  const findBlogFromID = (id) => {
-    return blogQuery.data.find(blog => blog.id === id);
-  };
-
   const [user, userDispatch] = useContext(userContext);
   const notificationDispatch = useNotificationDispatch();
   
@@ -93,7 +52,7 @@ const App = () => {
 
   const addLike = async (blogId) => {
     try{
-      const theBlog = findBlogFromID(blogId);
+      const theBlog = blogQuery.data.find(blog => blog.id === blogId);
       let newBlogObject = { ...theBlog }; //This creates a clone
       newBlogObject.likes++;
       updateBlog(newBlogObject);
@@ -105,7 +64,7 @@ const App = () => {
 
   const deleteBlog = async (blogId) => {   
     try{
-      removeBlogFromID(blogId);
+      removeBlog(blogId);
     }
     catch(error){
       errorMessage(error.response.data.error);
