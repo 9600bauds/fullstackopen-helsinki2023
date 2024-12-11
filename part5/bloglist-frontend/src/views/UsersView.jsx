@@ -1,4 +1,5 @@
 import { Table } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 const UsersView = ({ users, isLoading }) => {
   if (isLoading) {
@@ -21,7 +22,9 @@ const UsersView = ({ users, isLoading }) => {
         {users.map(user => 
           <tr key={user.id}>
             <td>
-              {user.name}
+              <Link to={`/users/${user.username}`}>
+                {user.name}
+              </Link>
             </td>
             <td>
               {user.blogs.length}

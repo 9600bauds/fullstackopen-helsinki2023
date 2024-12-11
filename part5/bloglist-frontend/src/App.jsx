@@ -12,6 +12,7 @@ import UsersView from './views/UsersView';
 import LoginView from './views/LoginView';
 import { Container } from 'react-bootstrap';
 import { useBlogActions } from './hooks/useBlogActions';
+import UserView from './views/UserView';
 
 const App = () => {
   const navigate = useNavigate();
@@ -131,6 +132,7 @@ const App = () => {
           />
           <Route path="/login" element={<LoginView handleLogin={handleLogin} />} />
           <Route path="/users" element={<UsersView users={usersQuery.data} isLoading={usersQuery.isLoading}/>} />
+          <Route path="/users/:username" element={<UserView users={usersQuery.data} isLoading={usersQuery.isLoading}/>} />
         </Routes>
 
 
