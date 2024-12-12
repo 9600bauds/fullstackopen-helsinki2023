@@ -139,6 +139,34 @@ describe("with multiple test blogs saved", () => {
     });
   });
 
+  describe("adding a new comment", () => {
+    test("succeeds with a valid comment", async () => {
+      const blogsAtFirst = await testHelper.getAllBlogsAsJSON();
+      const blogID = blogsAtFirst[0].id;
+
+      const newComment = "simply eric";
+
+      const response = await api
+        .post(`/api/blogs/${blogID}/comments`)
+        .send({ comment: newComment }) //Needs to have a "comment" field thusly
+        .expect(201);
+      const updatedBlog = response.body;
+      assert.deepEqual(updatedBlog.comments.length, 1);
+      assert.deepEqual(updatedBlog.comments[0], newComment);
+    });
+
+    test("fails with code 400 if no comment is provided or comment is too short", async () => {
+      const blogsAtFirst = await testHelper.getAllBlogsAsJSON();
+      const blogID = blogsAtFirst[0].id;
+
+      await api.post(`/api/blogs/${blogID}/comments`).send({}).expect(400);
+      await api
+        .post(`/api/blogs/${blogID}/comments`)
+        .send({ comment: "" })
+        .expect(400);
+    });
+  });
+
   describe("saving a new blog", () => {
     test("succeeds with code 201", async () => {
       const validToken = await testHelper.getValidUserToken();
@@ -161,6 +189,7 @@ describe("with multiple test blogs saved", () => {
       assert.strictEqual(sentBlog.author, savedBlog.author);
       assert.strictEqual(sentBlog.url, savedBlog.url);
       assert.strictEqual(sentBlog.likes, savedBlog.likes);
+      assert.strictEqual(savedBlog.comments.length, 0);
     });
 
     test("lengthens the amount of saved blogs by 1", async () => {

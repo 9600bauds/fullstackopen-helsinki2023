@@ -47,6 +47,30 @@ blogsRouter.post("/", middleware.userExtractor, async (request, response) => {
   response.status(201).json(savedBlog);
 });
 
+blogsRouter.post("/:id/comments", async (request, response) => {
+  //You do not need authorization to comment on a blog, and it has no rate limiting, or sanitization beyond schema, etc...
+
+  const requestedId = request.params.id;
+  const comment = request.body.comment;
+  if (!comment) {
+    return response.status(400).json({
+      error: "comment must be sent as a string inside the 'comment' field",
+    });
+  }
+
+  const updatedBlog = await Blog.findOneAndUpdate(
+    { _id: requestedId },
+    { $push: { comments: comment } }, //Update using the atomic operation $push, to prevent race conditions
+    { new: true, runValidators: true }, // runValidators to apply schema validation on the new comments
+  ).populate("user", { username: 1, name: 1 });
+
+  if (updatedBlog) {
+    response.status(201).json(updatedBlog);
+  } else {
+    response.status(404).end();
+  }
+});
+
 blogsRouter.delete(
   "/:id",
   middleware.userExtractor,

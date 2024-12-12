@@ -44,7 +44,18 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
           </Link>
         </span>
       </div>
-      {user.username === blog.user.username && generateDeleteButton()}
+      {user && user.username === blog.user.username && generateDeleteButton()}
+      <div className='blogComments'>
+        <div>comments:</div>
+        {!blog.comments || !blog.comments.length ? `no comments` : 
+          <ul>
+            {
+              // eslint-disable-next-line react/jsx-key
+              blog.comments.map(comment => <li>{comment}</li>)
+            }
+          </ul>
+        }
+      </div>
     </div>  
   );
 };

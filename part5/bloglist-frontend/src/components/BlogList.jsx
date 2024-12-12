@@ -1,9 +1,12 @@
+import { Link } from "react-router-dom";
 import { BlogPropType } from "../propTypes/Blog.propTypes";
 
 const BlogSmall = ({ blog }) => {
   return (
     <div className='blogDiv'>
-      <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
+      <Link to={`/blogs/${blog.id}`}>
+        <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
+      </Link>
     </div>  
   );
 };
