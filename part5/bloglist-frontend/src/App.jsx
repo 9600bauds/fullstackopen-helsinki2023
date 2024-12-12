@@ -15,6 +15,7 @@ import { useBlogActions } from './hooks/useBlogActions';
 import UserView from './views/UserView';
 import BlogView from './views/BlogView';
 import './App.css';
+import Navmenu from './components/Navmenu';
 
 const App = () => {
   const navigate = useNavigate();
@@ -119,33 +120,26 @@ const App = () => {
 
   return (
     <Container>
-      <div>
-        {user && <div data-testid='welcome-msg'>
-          Welcome {user.name}! If that isn&apos;t you, <button data-testid='logout-btn' onClick={logOut}>log out</button>
-          <hr/>
-        </div>}
-        <Notification />
-        <Routes>
-          <Route path="/" 
-            element={
-              <Home 
-                blogs = {blogQuery.data}
-                isLoading = {blogQuery.isLoading}
-                successMessage={successMessage}
-                errorMessage={errorMessage}
-                addLike={addLike}
-                createBlog={createBlog}
-                deleteBlog={deleteBlog} />
-            }
-          />
-          <Route path="/blogs/:id" element={<BlogView blog={specificblog} isLoading={blogQuery.isLoading} addLike={addLike} deleteBlog={deleteBlog} />} />
-          <Route path="/login" element={<LoginView handleLogin={handleLogin} />} />
-          <Route path="/users" element={<UsersView users={usersQuery.data} isLoading={usersQuery.isLoading}/>} />
-          <Route path="/users/:username" element={<UserView user={specificUser} isLoading={usersQuery.isLoading}/>} />
-        </Routes>
-
-
-      </div>
+      <Navmenu logOut={logOut} />
+      <Notification />
+      <Routes>
+        <Route path="/" 
+          element={
+            <Home 
+              blogs = {blogQuery.data}
+              isLoading = {blogQuery.isLoading}
+              successMessage={successMessage}
+              errorMessage={errorMessage}
+              addLike={addLike}
+              createBlog={createBlog}
+              deleteBlog={deleteBlog} />
+          }
+        />
+        <Route path="/blogs/:id" element={<BlogView blog={specificblog} isLoading={blogQuery.isLoading} addLike={addLike} deleteBlog={deleteBlog} />} />
+        <Route path="/login" element={<LoginView handleLogin={handleLogin} />} />
+        <Route path="/users" element={<UsersView users={usersQuery.data} isLoading={usersQuery.isLoading}/>} />
+        <Route path="/users/:username" element={<UserView user={specificUser} isLoading={usersQuery.isLoading}/>} />
+      </Routes>
     </Container>
   );
 };
