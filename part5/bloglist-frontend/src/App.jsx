@@ -6,13 +6,15 @@ import { useQuery } from '@tanstack/react-query';
 import userContext from './contexts/userContext';
 import Notification from './components/Notification';
 import { useNotificationDispatch } from './contexts/notificationContext';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, useMatch, useNavigate } from 'react-router-dom';
 import Home from './views/Home';
 import UsersView from './views/UsersView';
 import LoginView from './views/LoginView';
 import { Container } from 'react-bootstrap';
 import { useBlogActions } from './hooks/useBlogActions';
 import UserView from './views/UserView';
+import BlogView from './views/BlogView';
+import './App.css';
 
 const App = () => {
   const navigate = useNavigate();
@@ -23,10 +25,16 @@ const App = () => {
   });
   const { createBlog, updateBlog, removeBlog } = useBlogActions();
 
+  const blogMatch = useMatch(`/blogs/:id`);
+  const specificblog = blogMatch && blogQuery.isFetched ? blogQuery.data.find(blog => blog.id === blogMatch.params.id) : null;
+
   const usersQuery = useQuery({
     queryKey: [`users`],
     queryFn: userService.getAll
   });
+
+  const userMatch = useMatch(`/users/:username`);
+  const specificUser = userMatch && usersQuery.isFetched ? usersQuery.data.find(user => user.username === userMatch.params.username) : null;
   
   const [user, userDispatch] = useContext(userContext);
   const notificationDispatch = useNotificationDispatch();
@@ -130,9 +138,10 @@ const App = () => {
                 deleteBlog={deleteBlog} />
             }
           />
+          <Route path="/blogs/:id" element={<BlogView blog={specificblog} isLoading={blogQuery.isLoading} addLike={addLike} deleteBlog={deleteBlog} />} />
           <Route path="/login" element={<LoginView handleLogin={handleLogin} />} />
           <Route path="/users" element={<UsersView users={usersQuery.data} isLoading={usersQuery.isLoading}/>} />
-          <Route path="/users/:username" element={<UserView users={usersQuery.data} isLoading={usersQuery.isLoading}/>} />
+          <Route path="/users/:username" element={<UserView user={specificUser} isLoading={usersQuery.isLoading}/>} />
         </Routes>
 
 

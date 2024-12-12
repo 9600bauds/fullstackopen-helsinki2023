@@ -1,17 +1,9 @@
-import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const UserView = ({ users, isLoading }) => {
-  const username = useParams().username;
-
+const UserView = ({ user, isLoading }) => {
   if (isLoading) {
     return <div>Loading user data...</div>;
   }
-
-  if(!users){
-    return <div>No users found.</div>;
-  }
-
-  const user = users.find(u => u.username === username);
 
   if(!user){
     return <div>Could not find that user.</div>;
@@ -25,7 +17,7 @@ const UserView = ({ users, isLoading }) => {
       {
         user.blogs.length === 0 ?
           `No blogs found.` : 
-          user.blogs.map(blog => <li key={blog.id}>{blog.title}</li>)
+          user.blogs.map(blog => <li key={blog.id}><Link to={`/blogs/${blog.id}`}>{blog.title}</Link></li>)
       }
     </div>
   );

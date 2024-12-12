@@ -2,7 +2,7 @@ import AddBlogForm from "../components/AddBlogForm";
 import BlogList from "../components/BlogList";
 import Togglable from "../components/Togglable";
 
-const Home = ({ blogs, isLoading, successMessage, errorMessage, addLike, createBlog, deleteBlog }) => {
+const Home = ({ blogs, isLoading, successMessage, errorMessage, createBlog }) => {
   return (
     <div>
       <Togglable buttonLabel="Create New Blog">
@@ -17,8 +17,6 @@ const Home = ({ blogs, isLoading, successMessage, errorMessage, addLike, createB
       <BlogList
         blogs={blogs}
         loading={isLoading}
-        addLike={addLike}
-        deleteBlog={deleteBlog}
       />
     </div>
   );

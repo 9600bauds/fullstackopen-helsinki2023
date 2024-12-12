@@ -1,24 +1,10 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { BlogPropType } from '../propTypes/Blog.propTypes';
 import { useUserContext } from '../contexts/userContext';
+import { Link } from 'react-router-dom';
 
 const Blog = ({ blog, addLike, deleteBlog }) => {
-  const [expanded, setExpanded] = useState(false);
-
   const user = useUserContext();
-
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: `solid`,
-    borderWidth: 1,
-    marginBottom: 5
-  };
-
-  const toggleExpanded = () => {
-    setExpanded(!expanded);
-  };
 
   const onLikeButtonClicked = () => {
     addLike(blog.id);
@@ -39,26 +25,24 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
     );
   };
 
-  if(!expanded){
-    return (
-      <div className='blogDiv' style={blogStyle}>
-        <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
-        <button className='toggleButton' onClick={toggleExpanded}>view</button>
-      </div>  
-    );
-  }
   return (
-    <div className='blogDiv expanded' style={blogStyle}>
+    <div className='blogDiv'>
       <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
-      <button className='toggleButton' onClick={toggleExpanded}>hide</button>
       <div className='blogUrl'>
-        {blog.url}
+        <Link to={blog.url}>
+          {blog.url}
+        </Link>
       </div>
       <div className='blogLikes'>
         Likes: <span className='likesAmount'>{blog.likes}</span> <button className='likeButton' onClick={onLikeButtonClicked}>like!</button>
       </div>
       <div className='blogSubmittedBy'>
-        submitted by <span className='submittedByName'>{blog.user.name}</span>
+        submitted by&nbsp;
+        <span className='submittedByName'>
+          <Link to={`/users/${blog.user.username}`}>
+            {blog.user.name}
+          </Link>
+        </span>
       </div>
       {user.username === blog.user.username && generateDeleteButton()}
     </div>  

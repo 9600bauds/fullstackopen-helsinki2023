@@ -1,6 +1,18 @@
-import Blog from "./Blog";
+import { BlogPropType } from "../propTypes/Blog.propTypes";
 
-const BlogList = ({blogs, isLoading, addLike, deleteBlog}) => {
+const BlogSmall = ({ blog }) => {
+  return (
+    <div className='blogDiv'>
+      <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
+    </div>  
+  );
+};
+
+BlogSmall.propTypes = {
+  blog: BlogPropType.isRequired
+};
+
+const BlogList = ({ blogs, isLoading }) => {
   if (isLoading) {
     return <div>Loading blogs...</div>;
   }
@@ -12,7 +24,7 @@ const BlogList = ({blogs, isLoading, addLike, deleteBlog}) => {
   return (
     <div>
       {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
-        <Blog key={blog.id} blog={blog} addLike={addLike} deleteBlog={deleteBlog}/>
+        <BlogSmall key={blog.id} blog={blog}/>
       )}
     </div>
   );
