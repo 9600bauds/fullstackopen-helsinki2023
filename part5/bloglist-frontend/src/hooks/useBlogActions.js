@@ -4,6 +4,14 @@ import blogService from '../services/blogs';
 export const useBlogActions = () => {
   const queryClient = useQueryClient();
 
+  const updateQueryData = (updatedBlog) => {
+    const oldState = queryClient.getQueryData([`blogs`]);
+    const newState = oldState.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog);
+    queryClient.setQueryData([`blogs`], newState);
+  };
+
+
+
   const createBlogMutation = useMutation({
     mutationFn: (blogData) => blogService.create(blogData),
     onSuccess: (createdBlog) => {
@@ -18,15 +26,20 @@ export const useBlogActions = () => {
   };
 
   const updateBlogMutation = useMutation({
-    mutationFn: (blogData) => blogService.update(blogData.id, blogData),
-    onSuccess: (updatedBlog) => {
-      const oldState = queryClient.getQueryData([`blogs`]);
-      const newState = oldState.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog);
-      queryClient.setQueryData([`blogs`], newState);
-    }
+    mutationFn: ({ blogId, blogData }) => blogService.update(blogId, blogData),
+    onSuccess: updateQueryData
   });
-  const updateBlog = async (updatedBlogData) => {
-    const updatedBlog = await updateBlogMutation.mutateAsync(updatedBlogData);
+  const updateBlog = async (blogId, updatedBlogData) => {
+    const updatedBlog = await updateBlogMutation.mutateAsync({ blogId, updatedBlogData });
+    return updatedBlog;
+  };
+
+  const addCommentMutation = useMutation({
+    mutationFn: ({ blogId, comment }) => blogService.addComment(blogId, comment),
+    onSuccess: updateQueryData
+  });
+  const addCommentBlog = async (blogId, comment) => {
+    const updatedBlog = await addCommentMutation.mutateAsync({ blogId, comment });
     return updatedBlog;
   };
 
@@ -42,5 +55,7 @@ export const useBlogActions = () => {
     return await removeBlogMutation.mutateAsync(id);
   };
 
-  return { createBlog, updateBlog, removeBlog };
+
+
+  return { createBlog, updateBlog, removeBlog, addCommentBlog };
 };

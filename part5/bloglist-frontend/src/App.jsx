@@ -24,7 +24,7 @@ const App = () => {
     queryKey: [`blogs`],
     queryFn: blogService.getAll
   });
-  const { createBlog, updateBlog, removeBlog } = useBlogActions();
+  const { createBlog, updateBlog, removeBlog, addCommentBlog } = useBlogActions();
 
   const blogMatch = useMatch(`/blogs/:id`);
   const specificblog = blogMatch && blogQuery.isFetched ? blogQuery.data.find(blog => blog.id === blogMatch.params.id) : null;
@@ -65,7 +65,16 @@ const App = () => {
       const theBlog = blogQuery.data.find(blog => blog.id === blogId);
       let newBlogObject = { ...theBlog }; //This creates a clone
       newBlogObject.likes++;
-      updateBlog(newBlogObject);
+      updateBlog(blogId, newBlogObject);
+    }
+    catch(error){
+      errorMessage(error.response.data.error);
+    }
+  };
+
+  const addComment = async (blogId, comment) => {
+    try{
+      addCommentBlog(blogId, comment);
     }
     catch(error){
       errorMessage(error.response.data.error);
@@ -135,7 +144,7 @@ const App = () => {
               deleteBlog={deleteBlog} />
           }
         />
-        <Route path="/blogs/:id" element={<BlogView blog={specificblog} isLoading={blogQuery.isLoading} addLike={addLike} deleteBlog={deleteBlog} />} />
+        <Route path="/blogs/:id" element={<BlogView blog={specificblog} isLoading={blogQuery.isLoading} addLike={addLike} addComment={addComment} deleteBlog={deleteBlog} />} />
         <Route path="/login" element={<LoginView handleLogin={handleLogin} />} />
         <Route path="/users" element={<UsersView users={usersQuery.data} isLoading={usersQuery.isLoading}/>} />
         <Route path="/users/:username" element={<UserView user={specificUser} isLoading={usersQuery.isLoading}/>} />

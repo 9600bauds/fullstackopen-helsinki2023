@@ -38,6 +38,7 @@ const unknownEndpoint = (request, response) => {
 
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message);
+  logger.error("Stack trace:", error.stack);
 
   if (error.name === "CastError") {
     return response.status(400).json({ error: "Malformatted id" });

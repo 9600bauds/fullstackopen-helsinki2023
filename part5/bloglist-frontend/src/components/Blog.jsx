@@ -2,9 +2,22 @@ import PropTypes from 'prop-types';
 import { BlogPropType } from '../propTypes/Blog.propTypes';
 import { useUserContext } from '../contexts/userContext';
 import { Link } from 'react-router-dom';
+import AddCommentForm from './AddCommentForm';
 
-const Blog = ({ blog, addLike, deleteBlog }) => {
+const DeleteButton = ({ onDeleteButtonClicked }) => {
+  return (
+    <button className='blogDeleteButton' onClick = {onDeleteButtonClicked}>
+      Delete
+    </button>
+  );
+};
+
+const Blog = ({ blog, addLike, addComment, deleteBlog }) => {
   const user = useUserContext();
+
+  const onAddCommentFormSent = (comment) => {
+    addComment(blog.id, comment);
+  };
 
   const onLikeButtonClicked = () => {
     addLike(blog.id);
@@ -15,14 +28,6 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
       return;
     }
     deleteBlog(blog.id);
-  };
-
-  const generateDeleteButton = () => {
-    return(
-      <button className='blogDeleteButton' onClick = {onDeleteButtonClicked}>
-        Delete
-      </button>
-    );
   };
 
   return (
@@ -44,7 +49,7 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
           </Link>
         </span>
       </div>
-      {user && user.username === blog.user.username && generateDeleteButton()}
+      {user && user.username === blog.user.username && <DeleteButton onDeleteButtonClicked={onDeleteButtonClicked}/>}
       <div className='blogComments'>
         <div>comments:</div>
         {!blog.comments || !blog.comments.length ? `no comments` : 
@@ -56,6 +61,7 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
           </ul>
         }
       </div>
+      <AddCommentForm onAddCommentFormSent={onAddCommentFormSent} />
     </div>  
   );
 };
