@@ -1,10 +1,10 @@
 import { Nav, Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useUserContext } from "../contexts/userContext";
+import { useAuth } from "../hooks/useAuth";
 
-const Navmenu = ({ logOut }) => {
+const Navmenu = () => {
 
-  const user = useUserContext();
+  const { user, logOut } = useAuth();
 
   if(!user){
     return null;

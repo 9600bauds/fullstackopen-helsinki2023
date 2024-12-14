@@ -1,6 +1,6 @@
 import Blog from "../components/Blog";
 
-const BlogView = ({ blog, isLoading, addLike, addComment, deleteBlog }) => {
+const BlogView = ({ blog, isLoading }) => {
   if (isLoading) {
     return <div>Loading blogs...</div>;
   }
@@ -10,7 +10,7 @@ const BlogView = ({ blog, isLoading, addLike, addComment, deleteBlog }) => {
   }
 
   return (
-    <Blog blog={blog} addLike={addLike} deleteBlog={deleteBlog} addComment={addComment} />
+    <Blog blog={blog} />
   );
 };
 export default BlogView;

@@ -29,8 +29,8 @@ export const useBlogActions = () => {
     mutationFn: ({ blogId, blogData }) => blogService.update(blogId, blogData),
     onSuccess: updateQueryData
   });
-  const updateBlog = async (blogId, updatedBlogData) => {
-    const updatedBlog = await updateBlogMutation.mutateAsync({ blogId, updatedBlogData });
+  const updateBlog = async (blogId, blogData) => {
+    const updatedBlog = await updateBlogMutation.mutateAsync({ blogId, blogData });
     return updatedBlog;
   };
 

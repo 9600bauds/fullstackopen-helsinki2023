@@ -1,9 +1,14 @@
 import { useState } from "react";
+import { useNotifications } from "../hooks/useNotifications";
+import { useBlogActions } from "../hooks/useBlogActions";
 
-const AddBlogForm = ({successMessage, errorMessage, createBlog}) => {
+const AddBlogForm = () => {
   const [title, setTitle] = useState(``);
   const [author, setAuthor] = useState(``);
   const [url, setUrl] = useState(``);
+
+  const { successMessage, errorMessage } = useNotifications();
+  const { createBlog } = useBlogActions();
 
   const addNewblog = async (event) => {
     event.preventDefault();
@@ -17,6 +22,9 @@ const AddBlogForm = ({successMessage, errorMessage, createBlog}) => {
     try{
       const response = await createBlog(newBlog);
       successMessage(`Added a new blog: ${response.title} by ${response.author}`);
+      setTitle(``);
+      setAuthor(``);
+      setUrl(``);
     }
     catch(error){
       errorMessage(error.response.data.error);
