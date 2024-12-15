@@ -1,6 +1,20 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import userService from '../services/users';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-const UserView = ({ user, isLoading }) => {
+const UserView = () => {
+  const { username } = useParams();
+  const queryClient = useQueryClient();
+
+  const {data: user, isLoading} = useQuery({
+    queryKey: [`users`, username],
+    queryFn: () => userService.getOne(username),
+    initialData: () => {
+      const cachedUsers = queryClient.getQueryData([`users`]);
+      return cachedUsers?.find(user => user.username === username);
+    }
+  });
+
   if (isLoading) {
     return <div>Loading user data...</div>;
   }

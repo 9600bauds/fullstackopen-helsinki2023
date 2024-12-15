@@ -6,8 +6,11 @@ export const useBlogActions = () => {
 
   const updateQueryData = (updatedBlog) => {
     const oldState = queryClient.getQueryData([`blogs`]);
-    const newState = oldState.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog);
-    queryClient.setQueryData([`blogs`], newState);
+    if (oldState) {
+      const newState = oldState.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog);
+      queryClient.setQueryData([`blogs`], newState);
+    }
+    queryClient.setQueryData([`blogs`, updatedBlog.id], updatedBlog);
   };
 
 
@@ -18,6 +21,7 @@ export const useBlogActions = () => {
       const oldState = queryClient.getQueryData([`blogs`]);
       const newState = oldState.concat(createdBlog); //concat is atomic, does not mutate
       queryClient.setQueryData([`blogs`], newState);
+      queryClient.setQueryData([`blogs`, createdBlog.id], createdBlog);
     }
   });
   const createBlog = async (newBlogData) => {
@@ -49,6 +53,7 @@ export const useBlogActions = () => {
       const oldState = queryClient.getQueryData([`blogs`]);
       const newState = oldState.filter(blog => blog.id !== id);
       queryClient.setQueryData([`blogs`], newState);
+      queryClient.removeQueries([`blogs`, id]);
     }
   });
   const removeBlog = async (id) => {

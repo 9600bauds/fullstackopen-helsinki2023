@@ -7,13 +7,10 @@ const getAll = async () => {
   return response.data;
 };
 
-/**
- * Not implemented in the backend yet
- */
-const getById = async (id) => {
-  const request = axios.get(`baseUrl/${id}`);
+const getOne = async (id) => {
+  const request = axios.get(`${baseUrl}/${id}`);
   const response = await request;
   return response.data;
 };
 
-export default { getAll, getById };
+export default { getAll, getOne };

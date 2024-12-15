@@ -1,8 +1,15 @@
+import { useQuery } from "@tanstack/react-query";
 import AddBlogForm from "../components/AddBlogForm";
 import BlogList from "../components/BlogList";
 import Togglable from "../components/Togglable";
+import blogService from '../services/blogs';
 
-const Home = ({ blogs, isLoading }) => {
+const Home = () => {
+  const {data: blogs, isLoading} = useQuery({
+    queryKey: [`blogs`],
+    queryFn: blogService.getAll
+  });
+
   return (
     <div>
       <Togglable buttonLabel="Create New Blog">

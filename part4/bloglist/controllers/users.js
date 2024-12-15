@@ -34,4 +34,22 @@ usersRouter.get("/", async (request, response) => {
   response.json(users);
 });
 
+usersRouter.get("/:username", async (request, response) => {
+  const requestedUsername = request.params.username;
+  const user = await User.findOne({ username: requestedUsername }).populate(
+    "blogs",
+    {
+      title: 1,
+      url: 1,
+      likes: 1,
+      author: 1,
+    },
+  );
+  if (user) {
+    response.json(user);
+  } else {
+    response.status(404).end();
+  }
+});
+
 module.exports = usersRouter;

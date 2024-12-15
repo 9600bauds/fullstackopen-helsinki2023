@@ -1,7 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
 import { Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import userService from '../services/users';
 
-const UsersView = ({ users, isLoading }) => {
+const UsersView = () => {
+  const {data: users, isLoading} = useQuery({
+    queryKey: [`users`],
+    queryFn: userService.getAll
+  });
+
   if (isLoading) {
     return <div>Loading users...</div>;
   }

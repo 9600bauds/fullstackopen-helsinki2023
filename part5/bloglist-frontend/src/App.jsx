@@ -21,23 +21,6 @@ import { Container } from 'react-bootstrap';
 const App = () => {
   const { user, checkForSavedCredentials } = useAuth();
 
-  const blogQuery = useQuery({
-    queryKey: [`blogs`],
-    queryFn: blogService.getAll
-  });
-
-  const blogMatch = useMatch(`/blogs/:id`);
-  const specificblog = blogMatch && blogQuery.isFetched ? blogQuery.data.find(blog => blog.id === blogMatch.params.id) : null;
-
-  const usersQuery = useQuery({
-    queryKey: [`users`],
-    queryFn: userService.getAll
-  });
-
-  const userMatch = useMatch(`/users/:username`);
-  const specificUser = userMatch && usersQuery.isFetched ? usersQuery.data.find(user => user.username === userMatch.params.username) : null;
-
-
   useEffect(() => {
     checkForSavedCredentials(); // Explicitly check this once when App mounts
   }, [checkForSavedCredentials]);
@@ -58,15 +41,12 @@ const App = () => {
       <Routes>
         <Route path="/" 
           element={
-            <Home 
-              blogs = {blogQuery.data}
-              isLoading = {blogQuery.isLoading}
-            />
+            <Home />
           }
         />
-        <Route path="/blogs/:id" element={<BlogView blog={specificblog} isLoading={blogQuery.isLoading} />} />
-        <Route path="/users" element={<UsersView users={usersQuery.data} isLoading={usersQuery.isLoading}/>} />
-        <Route path="/users/:username" element={<UserView user={specificUser} isLoading={usersQuery.isLoading}/>} />
+        <Route path="/blogs/:id" element={<BlogView />} />
+        <Route path="/users" element={<UsersView />} />
+        <Route path="/users/:username" element={<UserView />} />
       </Routes>
     </Container>
   );
