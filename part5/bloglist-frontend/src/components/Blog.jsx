@@ -4,28 +4,28 @@ import AddCommentForm from './AddCommentForm';
 import { useAuth } from '../hooks/useAuth';
 import { useBlogActions } from '../hooks/useBlogActions';
 import { useNotifications } from '../hooks/useNotifications';
+import { Button, Card, ListGroup, Stack } from 'react-bootstrap';
 
 const DeleteButton = ({ onDeleteButtonClicked }) => {
   return (
-    <button className='blogDeleteButton' onClick = {onDeleteButtonClicked}>
+    <Button variant="danger" onClick={onDeleteButtonClicked} className="ms-2">
       Delete
-    </button>
+    </Button>
   );
 };
 
 const CommentList = ({ comments }) => {
-  if (!comments || !comments.length)
-  {
-    return (`no comments`);
+  if (!comments || !comments.length) {
+    return <p>No comments</p>;
   }
 
   return (
-    <ul>
-      {
-      //comment-index is done to create keys that are effectively unique, since the comments don't actually have IDs...
-        comments.map((comment, index) => <li key={`${comment}-${index}`}>{comment}</li>)
-      }
-    </ul>
+    <ListGroup>
+      {comments.map((comment, index) => (
+        //comment-index is done to create keys that are effectively unique, since the comments don't actually have IDs...
+        <ListGroup.Item key={`${comment}-${index}`}>{comment}</ListGroup.Item>
+      ))}
+    </ListGroup>
   );
 };
 
@@ -73,31 +73,42 @@ const Blog = ({ blog }) => {
   };
 
   return (
-    <div className='blogDiv'>
-      <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
-      <div className='blogUrl'>
-        <Link to={blog.url}>
-          {blog.url}
-        </Link>
-      </div>
-      <div className='blogLikes'>
-        Likes: <span className='likesAmount'>{blog.likes}</span> <button className='likeButton' onClick={onLikeButtonClicked}>like!</button>
-      </div>
-      <div className='blogSubmittedBy'>
-        submitted by&nbsp;
-        <span className='submittedByName'>
-          <Link to={`/users/${blog.user.username}`}>
-            {blog.user.name}
+    <Card className='mb-3'>
+      <Card.Body>
+        <Card.Title>
+          <span className='fw-bold'>{blog.title}</span> by <span className='fw-bold'>{blog.author}</span>
+        </Card.Title>
+        <Card.Text>
+          <Link to={blog.url} className='text-decoration-none'>
+            {blog.url}
           </Link>
-        </span>
-      </div>
-      {user && user.username === blog.user.username && <DeleteButton onDeleteButtonClicked={onDeleteButtonClicked}/>}
-      <div className='blogComments'>
-        <div>comments:</div>
-        <CommentList comments={blog.comments}/>
-      </div>
-      <AddCommentForm onAddCommentFormSent={onAddCommentFormSent} />
-    </div>  
+          <Stack direction="horizontal" gap={2} className='mt-2'>
+            <span>
+              Likes: {blog.likes}
+            </span>
+            <Button onClick={onLikeButtonClicked} size="sm">
+              like!
+            </Button>
+          </Stack>
+          <div className='mt-2'>
+            Submitted by&nbsp;
+            <Link to={`/users/${blog.user.username}`} className='text-decoration-none fw-bold'>
+              {blog.user.name}
+            </Link>
+          </div>
+        </Card.Text>
+        <div className='mt-2 d-flex align-items-center'>
+          {user && user.username === blog.user.username && (
+            <DeleteButton onDeleteButtonClicked={onDeleteButtonClicked} />
+          )}
+        </div>
+      </Card.Body>
+      <Card.Footer>
+        <div className='mb-2'>Comments:</div>
+        <CommentList comments={blog.comments} />
+        <AddCommentForm onAddCommentFormSent={onAddCommentFormSent} />
+      </Card.Footer>
+    </Card>  
   );
 };
 

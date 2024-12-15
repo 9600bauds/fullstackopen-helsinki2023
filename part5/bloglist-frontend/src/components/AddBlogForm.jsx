@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNotifications } from "../hooks/useNotifications";
 import { useBlogActions } from "../hooks/useBlogActions";
+import { Form, Button, Stack } from "react-bootstrap";
 
 const AddBlogForm = () => {
   const [title, setTitle] = useState(``);
@@ -16,57 +17,56 @@ const AddBlogForm = () => {
     const newBlog = {
       title,
       author,
-      url
+      url,
     };
 
-    try{
+    try {
       const response = await createBlog(newBlog);
       successMessage(`Added a new blog: ${response.title} by ${response.author}`);
       setTitle(``);
       setAuthor(``);
       setUrl(``);
-    }
-    catch(error){
+    } catch (error) {
       errorMessage(error.response.data.error);
     }
   };
 
   return (
-    <form onSubmit={addNewblog}>
-      <div>
-        <label htmlFor="title">Title:</label>
-        <input
+    <Form onSubmit={addNewblog} className="p-0">
+      <Form.Group className="mb-2" controlId="formTitle">
+        <Form.Label className="mb-0">Title:</Form.Label>
+        <Form.Control
           type="text"
-          id="title"
-          name="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter blog title"
         />
-      </div>
-      <div>
-        <label htmlFor="author">Author:</label>
-        <input
+      </Form.Group>
+      <Form.Group className="mb-2" controlId="formAuthor">
+        <Form.Label className="mb-0">Author:</Form.Label>
+        <Form.Control
           type="text"
-          id="author"
-          name="author"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
+          placeholder="Enter blog author"
         />
-      </div>
-      <div>
-        <label htmlFor="url">URL:</label>
-        <input
+      </Form.Group>
+      <Form.Group className="mb-2" controlId="formUrl">
+        <Form.Label className="mb-0">URL:</Form.Label>
+        <Form.Control
           type="text"
-          id="url"
-          name="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
+          placeholder="Enter blog url"
         />
-      </div>
-      <button type="submit">Submit</button>
-    </form>
+      </Form.Group>
+      <Stack direction="horizontal" className="mt-2">
+        <Button variant="primary" type="submit" className="me-2">
+          Submit
+        </Button>
+      </Stack>
+    </Form>
   );
 };
-
 
 export default AddBlogForm;

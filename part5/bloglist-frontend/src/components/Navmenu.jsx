@@ -14,16 +14,22 @@ const Navmenu = () => {
     <Navbar collapseOnSelect expand="lg" bg="light" variant="light">
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
-        <Nav className="me-auto">
-          <Nav.Link href="#" as="span">
+        <Nav className="me-auto d-flex align-items-center" >
+          <Nav.Link as="span">
             <Link to="/">blogs</Link>
           </Nav.Link>
-          <Nav.Link href="#" as="span">
-            <Link  to="/users">users</Link>
+          <Nav.Link as="span">
+            <Link to="/users">users</Link>
           </Nav.Link>
-          <Nav.Link href="#" as="span">
-            <div data-testid='welcome-msg'>
-              Welcome {user.name}! If that isn&apos;t you, <button data-testid='logout-btn' onClick={logOut}>log out</button>
+          <Nav.Link as="span">
+            <div data-testid="welcome-msg">
+              Welcome {user.name}! If that isn&apos;t you,&nbsp;
+              <button
+                data-testid="logout-btn"
+                onClick={logOut}
+              >
+                log out
+              </button>
             </div>
           </Nav.Link>
         </Nav>

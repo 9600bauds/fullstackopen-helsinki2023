@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Table } from "react-bootstrap";
+import { Spinner, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import userService from '../services/users';
 
@@ -10,7 +10,11 @@ const UsersView = () => {
   });
 
   if (isLoading) {
-    return <div>Loading users...</div>;
+    return(
+      <div className="d-flex justify-content-center mt-3">
+        <Spinner animation="border" />
+      </div>
+    );
   }
 
   if(!users){

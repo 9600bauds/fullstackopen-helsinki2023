@@ -1,16 +1,16 @@
 import { Link } from "react-router-dom";
 import { BlogPropType } from "../propTypes/Blog.propTypes";
+import { Card, ListGroup } from "react-bootstrap";
 
 const BlogSmall = ({ blog }) => {
   return (
-    <div className='blogDiv'>
-      <Link to={`/blogs/${blog.id}`}>
-        <span className='blogTitle'>{blog.title}</span> by <span className='blogAuthor'>{blog.author}</span>
+    <ListGroup.Item>
+      <Link to={`/blogs/${blog.id}`} className='text-decoration-none'>
+        <span className='fw-bold'>{blog.title}</span> <span className='text-muted'>by {blog.author}</span>
       </Link>
-    </div>  
+    </ListGroup.Item>
   );
 };
-
 BlogSmall.propTypes = {
   blog: BlogPropType.isRequired
 };
@@ -20,16 +20,20 @@ const BlogList = ({ blogs, isLoading }) => {
     return <div>Loading blogs...</div>;
   }
 
-  if(!blogs){
+  if (!blogs) {
     return <div>No blogs found.</div>;
   }
 
   return (
-    <div>
-      {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
-        <BlogSmall key={blog.id} blog={blog}/>
-      )}
-    </div>
+    <Card>
+      <ListGroup variant="flush">
+        {blogs
+          .sort((a, b) => b.likes - a.likes)
+          .map((blog) => (
+            <BlogSmall key={blog.id} blog={blog} />
+          ))}
+      </ListGroup>
+    </Card>
   );
 };
 export default BlogList;

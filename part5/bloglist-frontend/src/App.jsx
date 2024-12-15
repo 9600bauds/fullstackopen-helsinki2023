@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Route, Routes, useMatch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 import { useAuth } from './hooks/useAuth';
 
@@ -12,10 +11,7 @@ import UsersView from './views/UsersView';
 import LoginView from './views/LoginView';
 import UserView from './views/UserView';
 import BlogView from './views/BlogView';
-import blogService from './services/blogs';
-import userService from './services/users';
 
-import './App.css';
 import { Container } from 'react-bootstrap';
 
 const App = () => {
