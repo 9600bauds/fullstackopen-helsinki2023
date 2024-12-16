@@ -1,4 +1,2 @@
-part2/countrydata/start_npm.bat
-part4/bloglist/node_modules
-part4/bloglist/.env
 package-lock.json
+node_modules
