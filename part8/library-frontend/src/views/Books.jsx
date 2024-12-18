@@ -1,11 +1,13 @@
-const Books = (props) => {
+import { Table } from 'react-bootstrap';
+
+const Books = () => {
   const books = [];
 
   return (
     <div>
-      <h2>books</h2>
+      <h2>Books</h2>
 
-      <table>
+      <Table bordered hover responsive>
         <tbody>
           <tr>
             <th></th>
@@ -20,7 +22,7 @@ const Books = (props) => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </div>
   );
 };
