@@ -15,6 +15,7 @@ module.exports = {
   rules: {
     'react/jsx-no-target-blank': 'off',
     "linebreak-style": "off",
+    "no-unused-vars": "warn",
     "react/prop-types": "off",
     "quotes": ["error", "backtick"],
     'react-refresh/only-export-components': [

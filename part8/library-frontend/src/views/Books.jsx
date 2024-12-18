@@ -1,7 +1,21 @@
-import { Table } from 'react-bootstrap';
+import { useQuery } from '@apollo/client';
+
+import { ALL_BOOKS_SANS_GENRES } from '../queries';
+
+import { Spinner, Table } from 'react-bootstrap';
 
 const Books = () => {
-  const books = [];
+  const booksQuery = useQuery(ALL_BOOKS_SANS_GENRES);
+
+  if (booksQuery.loading) {
+    return (
+      <div className="d-flex justify-content-center mt-3">
+        <Spinner animation="border" />
+      </div>
+    );
+  }
+
+  const books = booksQuery.data.allBooks;
 
   return (
     <div>

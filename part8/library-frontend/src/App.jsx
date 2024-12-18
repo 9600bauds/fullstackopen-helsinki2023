@@ -9,7 +9,7 @@ import Navmenu from './components/Navmenu';
 
 import Authors from './views/Authors';
 import Books from './views/Books';
-import NewBook from './components/NewBook';
+import AddBookForm from './components/AddBookForm';
 
 const App = () => {
   return (
@@ -19,7 +19,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Books />} />
         <Route path="/authors" element={<Authors />} />
-        <Route path="/newBook" element={<NewBook />} />
+        <Route path="/addBook" element={<AddBookForm />} />
       </Routes>
     </Container>
   );

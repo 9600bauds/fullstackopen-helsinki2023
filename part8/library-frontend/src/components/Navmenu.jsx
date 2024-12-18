@@ -13,6 +13,9 @@ const Navmenu = () => {
           <Nav.Link as="span">
             <Link to="/authors">authors</Link>
           </Nav.Link>
+          <Nav.Link as="span">
+            <Link to="/addBook">add book</Link>
+          </Nav.Link>
         </Nav>
       </Navbar.Collapse>
     </Navbar>
