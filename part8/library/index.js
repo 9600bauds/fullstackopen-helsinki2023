@@ -50,27 +50,48 @@ const resolvers = {
 
   Mutation: {
     addBook: async (root, args) => {
-      console.log(`adding book with args`, args);
-      let author = await Author.findOne({ name: args.author });
+      try {
+        let author = await Author.findOne({ name: args.author });
 
-      if (!author) {
-        author = new Author({ name: args.author });
-        await author.save();
+        if (!author) {
+          author = new Author({ name: args.author });
+          await author.save();
+        }
+
+        const book = new Book({ ...args, author: author._id });
+        await book.save();
+        return book.populate(`author`);
+      } catch (error) {
+        throw new GraphQLError(`Adding book failed!`, {
+          extensions: {
+            code: `BAD_USER_INPUT`,
+            invalidArgs: args,
+            error,
+          },
+        });
       }
-      const book = new Book({ ...args, author: author._id });
-      await book.save();
-      return book.populate(`author`);
     },
 
     editAuthor: async (root, args) => {
-      const author = await Author.findOne({ name: args.name });
-      if (!author) {
-        return null;
-      }
+      try {
+        const author = await Author.findOne({ name: args.name });
+        if (!author) {
+          return null;
+        }
 
-      author.born = args.setBornTo;
-      const updatedAuthor = await author.save();
-      return updatedAuthor;
+        author.born = args.setBornTo; // todo: in the future I guess other args might be here too
+
+        const updatedAuthor = await author.save();
+        return updatedAuthor;
+      } catch (error) {
+        throw new GraphQLError(`Editing author failed!`, {
+          extensions: {
+            code: `BAD_USER_INPUT`,
+            invalidArgs: args,
+            error,
+          },
+        });
+      }
     },
   },
 
