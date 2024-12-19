@@ -1,12 +1,14 @@
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS_SANS_GENRES } from '../queries';
+import useField from '../hooks/useField';
 
 const AddBookForm = () => {
-  const [title, setTitle] = useState(``);
-  const [author, setAuthor] = useState(``);
-  const [published, setPublished] = useState(``);
-  const [genre, setGenre] = useState(``);
+  const title = useField(`title`);
+  const author = useField(`author`);
+  const published = useField(`published`);
+  const genre = useField(`genre`);
+
   const [genres, setGenres] = useState([]);
 
   const [addBook] = useMutation(ADD_BOOK, {
@@ -16,19 +18,25 @@ const AddBookForm = () => {
   const submit = async (event) => {
     event.preventDefault();
 
-    const publishedInt = parseInt(published); //Ideally React would just store this as int to begin with, whatever
-    addBook({ variables: { title, author, published: publishedInt, genres } });
+    addBook({
+      variables: {
+        title: title.value,
+        author: author.value,
+        published: parseInt(published.value),
+        genres,
+      },
+    });
 
-    setTitle(``);
-    setPublished(``);
-    setAuthor(``);
+    title.reset();
+    author.reset();
+    published.reset();
+    genre.reset();
     setGenres([]);
-    setGenre(``);
   };
 
   const addGenre = () => {
-    setGenres(genres.concat(genre));
-    setGenre(``);
+    setGenres(genres.concat(genre.value));
+    genre.reset();
   };
 
   return (
@@ -36,31 +44,18 @@ const AddBookForm = () => {
       <form onSubmit={submit}>
         <div>
           title
-          <input
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-          />
+          <input {...title.toInput()} />
         </div>
         <div>
           author
-          <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-          />
+          <input {...author.toInput()} />
         </div>
         <div>
           published
-          <input
-            type="number"
-            value={published}
-            onChange={({ target }) => setPublished(target.value)}
-          />
+          <input {...published.toInput()} type="number" />
         </div>
         <div>
-          <input
-            value={genre}
-            onChange={({ target }) => setGenre(target.value)}
-          />
+          <input {...genre.toInput()} />
           <button onClick={addGenre} type="button">
             add genre
           </button>
