@@ -11,8 +11,7 @@
     "dotenv": "^16.4.7",
     "graphql": "^16.10.0",
     "mongoose": "^7.8.3",
-    "mongoose-unique-validator": "^4.0.1",
-    "uuid": "^11.0.3"
+    "mongoose-unique-validator": "^4.0.1"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
