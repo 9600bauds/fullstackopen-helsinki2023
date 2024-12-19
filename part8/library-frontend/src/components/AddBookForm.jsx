@@ -1,9 +1,12 @@
 import { useMutation } from '@apollo/client';
 import { useState } from 'react';
-import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS_SANS_GENRES } from '../queries';
 import useField from '../hooks/useField';
+import { useNotifications } from '../hooks/useNotifications';
+import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS_SANS_GENRES } from '../queries';
 
 const AddBookForm = () => {
+  const { successMessage, errorMessage } = useNotifications();
+
   const title = useField(`title`);
   const author = useField(`author`);
   const published = useField(`published`);
@@ -13,12 +16,25 @@ const AddBookForm = () => {
 
   const [addBook] = useMutation(ADD_BOOK, {
     refetchQueries: [{ query: ALL_BOOKS_SANS_GENRES }, { query: ALL_AUTHORS }],
+    onError: (error) => {
+      const messages = error.graphQLErrors.map((e) => e.message).join(`\n`);
+      errorMessage(messages);
+    },
+    onCompleted: (response) => {
+      const newBook = response.addBook;
+      successMessage(`Added new book: ${newBook.title} by ${newBook.author}`);
+      title.reset();
+      author.reset();
+      published.reset();
+      genre.reset();
+      setGenres([]);
+    },
   });
 
   const submit = async (event) => {
     event.preventDefault();
 
-    addBook({
+    await addBook({
       variables: {
         title: title.value,
         author: author.value,
@@ -26,12 +42,6 @@ const AddBookForm = () => {
         genres,
       },
     });
-
-    title.reset();
-    author.reset();
-    published.reset();
-    genre.reset();
-    setGenres([]);
   };
 
   const addGenre = () => {
