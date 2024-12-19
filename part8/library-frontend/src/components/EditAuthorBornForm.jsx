@@ -19,8 +19,12 @@ const EditAuthorBornForm = () => {
     },
     onCompleted: (response) => {
       const editedAuthor = response.editAuthor;
+      if (!editedAuthor) {
+        return errorMessage(
+          `Request returned null (Could not find that author?)`
+        );
+      }
       successMessage(`Updated the birthyear for ${editedAuthor.name}`);
-      name.reset();
       born.reset();
     },
   });

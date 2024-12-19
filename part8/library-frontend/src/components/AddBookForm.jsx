@@ -22,7 +22,9 @@ const AddBookForm = () => {
     },
     onCompleted: (response) => {
       const newBook = response.addBook;
-      successMessage(`Added new book: ${newBook.title} by ${newBook.author}`);
+      successMessage(
+        `Added new book: ${newBook.title} by ${newBook.author.name}`
+      );
       title.reset();
       author.reset();
       published.reset();
