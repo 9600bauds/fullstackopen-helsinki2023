@@ -127,38 +127,17 @@ const resolvers = {
   },
 
   Mutation: {
-    addBook: (root, args) => {
-      // It's possible for two books to have the same title, so we check for title AND author... which is also possible in real life, but, close enough.
-      if (
-        books.find((b) => b.title === args.title && b.author === args.author)
-      ) {
-        throw new GraphQLError(
-          `There is already a book with that name and that author`,
-          {
-            extensions: {
-              code: `BAD_USER_INPUT`, // No specific argument is wrong, the whole thing is wrong
-            },
-          }
-        );
-      }
+    addBook: async (root, args) => {
+      console.log(`adding book with args`, args);
+      let author = await Author.findOne({ name: args.author });
 
-      const book = { ...args, id: uuid() };
-      books = books.concat(book);
-
-      let authorFound = false;
-      for (let author of authors) {
-        if (author.name === book.author) {
-          authorFound = true;
-          break;
-        }
+      if (!author) {
+        author = new Author({ name: args.author });
+        await author.save();
       }
-      if (!authorFound) {
-        // Ideally we could have an addAuthor mutation and call that... right?
-        const newAuthor = { name: book.author, id: uuid() };
-        authors = authors.concat(newAuthor);
-      }
-
-      return book;
+      const book = new Book({ ...args, author: author._id });
+      await book.save();
+      return book.populate(`author`);
     },
 
     editAuthor: (root, args) => {
