@@ -51,6 +51,18 @@ const resolvers = {
       }
       return Book.find(filters).populate(`author`);
     },
+    allGenres: async () => {
+      const books = await Book.find({});
+      const allGenres = books.reduce((genres, book) => {
+        book.genres.forEach((genre) => {
+          if (!genres.includes(genre)) {
+            genres.push(genre);
+          }
+        });
+        return genres;
+      }, []);
+      return allGenres;
+    },
   },
 
   Mutation: {

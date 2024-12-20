@@ -3,9 +3,15 @@ import { useQuery } from '@apollo/client';
 import { ALL_BOOKS_SANS_GENRES } from '../queries';
 
 import { Spinner, Table } from 'react-bootstrap';
+import { useState } from 'react';
+import GenreButtons from '../components/GenreButtons';
 
 const Books = () => {
-  const booksQuery = useQuery(ALL_BOOKS_SANS_GENRES);
+  const [selectedGenre, setSelectedGenre] = useState(null);
+
+  const booksQuery = useQuery(ALL_BOOKS_SANS_GENRES, {
+    variables: { genre: selectedGenre },
+  });
 
   if (booksQuery.loading) {
     return (
@@ -37,6 +43,10 @@ const Books = () => {
           ))}
         </tbody>
       </Table>
+      <GenreButtons
+        selectedGenre={selectedGenre}
+        setSelectedGenre={setSelectedGenre}
+      />
     </div>
   );
 };
