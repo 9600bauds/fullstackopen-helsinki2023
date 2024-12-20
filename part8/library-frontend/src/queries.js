@@ -58,3 +58,21 @@ export const EDIT_AUTHOR_BORN = gql`
     }
   }
 `;
+
+export const CREATE_USER = gql`
+  mutation CreateNewUser($username: String!, $favoriteGenre: String!) {
+    createUser(username: $username, favoriteGenre: $favoriteGenre) {
+      username
+      favoriteGenre
+      id
+    }
+  }
+`;
+
+export const LOGIN = gql`
+  mutation LoginUser($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      value
+    }
+  }
+`;
