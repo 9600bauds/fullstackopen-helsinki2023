@@ -1,7 +1,12 @@
 import { Nav, Navbar } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const Navmenu = () => {
+  const token = localStorage.getItem(`libraryToken`);
+
+  const { logOut } = useAuth();
+
   return (
     <Navbar collapseOnSelect expand="lg" bg="light" variant="light">
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
@@ -16,6 +21,15 @@ const Navmenu = () => {
           <Nav.Link as="span">
             <Link to="/addBook">add book</Link>
           </Nav.Link>
+          {token ? (
+            <Nav.Link as="span">
+              <Link onClick={logOut}>log out</Link>
+            </Nav.Link>
+          ) : (
+            <Nav.Link as="span">
+              <Link to="/login">log in</Link>
+            </Nav.Link>
+          )}
         </Nav>
       </Navbar.Collapse>
     </Navbar>

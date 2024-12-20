@@ -4,7 +4,8 @@ import useField from '../hooks/useField';
 import { useNotifications } from '../hooks/useNotifications';
 import { useState } from 'react';
 import Select from 'react-select';
-import { Spinner } from 'react-bootstrap';
+import { Alert, Spinner } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 const EditAuthorBornForm = () => {
   const { successMessage, errorMessage } = useNotifications();
@@ -28,6 +29,18 @@ const EditAuthorBornForm = () => {
       born.reset();
     },
   });
+
+  const token = localStorage.getItem(`libraryToken`);
+  if (!token) {
+    return (
+      <div>
+        <Alert>
+          You must be <Link to="/login">logged in</Link> to edit an
+          author&apos;s birthyear.
+        </Alert>
+      </div>
+    );
+  }
 
   const authorNameQuery = useQuery(ALL_AUTHORS);
 
@@ -58,6 +71,7 @@ const EditAuthorBornForm = () => {
 
   return (
     <div>
+      <h3>Edit Author Birthyear</h3>
       <form onSubmit={submit}>
         <Select
           defaultValue={name}

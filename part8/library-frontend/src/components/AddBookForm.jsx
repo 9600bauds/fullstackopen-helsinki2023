@@ -3,6 +3,8 @@ import { useState } from 'react';
 import useField from '../hooks/useField';
 import { useNotifications } from '../hooks/useNotifications';
 import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS_SANS_GENRES } from '../queries';
+import { Alert } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 const AddBookForm = () => {
   const { successMessage, errorMessage } = useNotifications();
@@ -50,6 +52,17 @@ const AddBookForm = () => {
     setGenres(genres.concat(genre.value));
     genre.reset();
   };
+
+  const token = localStorage.getItem(`libraryToken`);
+  if (!token) {
+    return (
+      <div>
+        <Alert>
+          You must be <Link to="/login">logged in</Link> to add a book.
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div>

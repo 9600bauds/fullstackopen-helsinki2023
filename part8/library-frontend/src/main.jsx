@@ -4,13 +4,34 @@ import App from './App.jsx';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import {
+  ApolloClient,
+  ApolloProvider,
+  createHttpLink,
+  InMemoryCache,
+} from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 import { BrowserRouter as Router } from 'react-router-dom';
+
 import { NotificationContextProvider } from './contexts/notificationContext';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+
+const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem(`libraryToken`);
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : null,
+    },
+  };
+});
+
+const httpLink = createHttpLink({
+  uri: `http://localhost:4000`,
+});
 
 const client = new ApolloClient({
-  uri: `http://localhost:4000`,
   cache: new InMemoryCache(),
+  link: authLink.concat(httpLink),
 });
 
 ReactDOM.createRoot(document.getElementById(`root`)).render(

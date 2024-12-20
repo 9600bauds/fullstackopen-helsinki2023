@@ -1,15 +1,13 @@
-import { useState } from 'react';
-
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 import { Container } from 'react-bootstrap';
-
 import Notification from './components/Notification';
 import Navmenu from './components/Navmenu';
 
 import Authors from './views/Authors';
 import Books from './views/Books';
 import AddBookForm from './components/AddBookForm';
+import LoginView from './views/LoginView';
 
 const App = () => {
   return (
@@ -18,6 +16,7 @@ const App = () => {
       <Notification />
       <Routes>
         <Route path="/" element={<Books />} />
+        <Route path="/login" element={<LoginView />} />
         <Route path="/authors" element={<Authors />} />
         <Route path="/addBook" element={<AddBookForm />} />
       </Routes>
