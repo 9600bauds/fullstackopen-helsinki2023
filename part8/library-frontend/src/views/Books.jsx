@@ -5,6 +5,7 @@ import { ALL_BOOKS_SANS_GENRES } from '../queries';
 import { Spinner, Table } from 'react-bootstrap';
 import { useState } from 'react';
 import GenreButtons from '../components/GenreButtons';
+import BookTable from '../components/BookTable';
 
 const Books = () => {
   const [selectedGenre, setSelectedGenre] = useState(null);
@@ -27,22 +28,7 @@ const Books = () => {
     <div>
       <h2>Books</h2>
 
-      <Table bordered hover responsive>
-        <tbody>
-          <tr>
-            <th></th>
-            <th>author</th>
-            <th>published</th>
-          </tr>
-          {books.map((a) => (
-            <tr key={a.title}>
-              <td>{a.title}</td>
-              <td>{a.author.name}</td>
-              <td>{a.published}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <BookTable books={books} />
       <GenreButtons
         selectedGenre={selectedGenre}
         setSelectedGenre={setSelectedGenre}

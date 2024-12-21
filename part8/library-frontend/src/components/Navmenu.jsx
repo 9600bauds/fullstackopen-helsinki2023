@@ -21,6 +21,9 @@ const Navmenu = () => {
           <Nav.Link as="span">
             <Link to="/addBook">add book</Link>
           </Nav.Link>
+          <Nav.Link as="span">
+            <Link to="/recommended">recommended</Link>
+          </Nav.Link>
           {token ? (
             <Nav.Link as="span">
               <Link onClick={logOut}>log out</Link>

@@ -8,6 +8,7 @@ import Authors from './views/Authors';
 import Books from './views/Books';
 import AddBookForm from './components/AddBookForm';
 import LoginView from './views/LoginView';
+import Recommended from './views/Recommended';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Books />} />
         <Route path="/login" element={<LoginView />} />
+        <Route path="/recommended" element={<Recommended />} />
         <Route path="/authors" element={<Authors />} />
         <Route path="/addBook" element={<AddBookForm />} />
       </Routes>
