@@ -1,6 +1,6 @@
-import { useQuery } from '@apollo/client';
+import { useQuery, useSubscription } from '@apollo/client';
 
-import { ALL_BOOKS_SANS_GENRES, LITERALLY_ME } from '../queries';
+import { ALL_BOOKS_SANS_GENRES, BOOK_ADDED, LITERALLY_ME } from '../queries';
 
 import { Alert, Spinner } from 'react-bootstrap';
 import BookTable from '../components/BookTable';
@@ -17,6 +17,23 @@ const Recommended = () => {
   const booksQuery = useQuery(ALL_BOOKS_SANS_GENRES, {
     variables: { genre: favoriteGenre },
     skip: !token || !favoriteGenre,
+  });
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      const newBook = data.data.bookAdded;
+
+      const cachedBooks = client.cache.readQuery({
+        query: ALL_BOOKS_SANS_GENRES,
+        variables: { genre: favoriteGenre },
+      });
+      if (cachedBooks) {
+        client.cache.writeQuery({
+          query: ALL_BOOKS_SANS_GENRES,
+          variables: { genre: favoriteGenre },
+          data: { allBooks: [...cachedBooks.allBooks, newBook] },
+        });
+      }
+    },
   });
 
   if (!token) {

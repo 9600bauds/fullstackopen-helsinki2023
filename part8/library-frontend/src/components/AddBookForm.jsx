@@ -42,7 +42,7 @@ const AddBookForm = () => {
       if (cachedBooks) {
         cache.writeQuery({
           query: ALL_BOOKS_SANS_GENRES,
-          data: { allBooks: [newBook, ...cachedBooks.allBooks] },
+          data: { allBooks: [...cachedBooks.allBooks, newBook] },
         });
       }
 

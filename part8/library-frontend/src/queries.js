@@ -124,3 +124,14 @@ export const LOGIN = gql`
     }
   }
 `;
+
+// Subscriptions
+
+export const BOOK_ADDED = gql`
+  subscription {
+    bookAdded {
+      ...BookDetailsSimple
+    }
+  }
+  ${BOOK_DETAILS_SIMPLE}
+`;
