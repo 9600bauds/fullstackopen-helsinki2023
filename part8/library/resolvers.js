@@ -100,9 +100,10 @@ const resolvers = {
         const book = new Book({ ...args, author: author._id });
         await book.save();
 
-        pubsub.publish(`BOOK_ADDED`, { bookAdded: book });
+        const bookWithAuthor = book.populate(`author`);
 
-        return book.populate(`author`);
+        pubsub.publish(`BOOK_ADDED`, { bookAdded: bookWithAuthor }); // For the subbers
+        return bookWithAuthor; // For the guy who asked
       } catch (error) {
         throw new GraphQLError(`Adding book failed!`, {
           extensions: {
@@ -154,7 +155,9 @@ const resolvers = {
 
   Subscription: {
     bookAdded: {
-      subscribe: () => pubsub.asyncIterableIterator(`BOOK_ADDED`),
+      subscribe: () => {
+        return pubsub.asyncIterableIterator(`BOOK_ADDED`);
+      },
     },
   },
 };

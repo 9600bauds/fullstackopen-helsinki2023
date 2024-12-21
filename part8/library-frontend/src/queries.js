@@ -1,27 +1,66 @@
 import { gql } from '@apollo/client';
 
+// Fragments
+
+const AUTHOR_DETAILS = gql`
+  fragment AuthorDetails on Author {
+    name
+    born
+    bookCount
+    id
+  }
+`;
+
+const BOOK_DETAILS_SIMPLE = gql`
+  fragment BookDetailsSimple on Book {
+    title
+    published
+    author {
+      name
+    }
+    id
+  }
+`;
+
+const BOOK_DETAILS_WITH_AUTHOR = gql`
+  fragment BookDetailsWithAuthor on Book {
+    title
+    published
+    author {
+      ...AuthorDetails
+    }
+    genres
+    id
+  }
+  ${AUTHOR_DETAILS}
+`;
+
+const USER_DETAILS = gql`
+  fragment UserDetails on User {
+    username
+    favoriteGenre
+    id
+  }
+`;
+
+// Queries
+
 export const ALL_AUTHORS = gql`
   query GetAllAuthors {
     allAuthors {
-      name
-      born
-      bookCount
-      id
+      ...AuthorDetails
     }
   }
+  ${AUTHOR_DETAILS}
 `;
 
 export const ALL_BOOKS_SANS_GENRES = gql`
   query GetAllBooks($author: String, $genre: String) {
     allBooks(author: $author, genre: $genre) {
-      title
-      published
-      author {
-        name
-      }
-      id
+      ...BookDetailsSimple
     }
   }
+  ${BOOK_DETAILS_SIMPLE}
 `;
 
 export const ALL_GENRES = gql`
@@ -33,12 +72,13 @@ export const ALL_GENRES = gql`
 export const LITERALLY_ME = gql`
   query Me {
     me {
-      username
-      favoriteGenre
-      id
+      ...UserDetails
     }
   }
+  ${USER_DETAILS}
 `;
+
+// Mutations
 
 export const ADD_BOOK = gql`
   mutation AddNewBook(
@@ -53,39 +93,28 @@ export const ADD_BOOK = gql`
       published: $published
       genres: $genres
     ) {
-      title
-      published
-      author {
-        name
-        born
-        bookCount
-        id
-      }
-      genres
-      id
+      ...BookDetailsWithAuthor
     }
   }
+  ${BOOK_DETAILS_WITH_AUTHOR}
 `;
 
 export const EDIT_AUTHOR_BORN = gql`
   mutation EditAuthorBirthYear($name: String!, $setBornTo: Int!) {
     editAuthor(name: $name, setBornTo: $setBornTo) {
-      name
-      born
-      id
-      bookCount
+      ...AuthorDetails
     }
   }
+  ${AUTHOR_DETAILS}
 `;
 
 export const CREATE_USER = gql`
   mutation CreateNewUser($username: String!, $favoriteGenre: String!) {
     createUser(username: $username, favoriteGenre: $favoriteGenre) {
-      username
-      favoriteGenre
-      id
+      ...UserDetails
     }
   }
+  ${USER_DETAILS}
 `;
 
 export const LOGIN = gql`
