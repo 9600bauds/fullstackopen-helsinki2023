@@ -17,7 +17,6 @@ const AddBookForm = () => {
   const [genres, setGenres] = useState([]);
 
   const [addBook] = useMutation(ADD_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS_SANS_GENRES }, { query: ALL_AUTHORS }],
     onError: (error) => {
       const messages = error.graphQLErrors.map((e) => e.message).join(`\n`);
       errorMessage(messages);
@@ -32,6 +31,35 @@ const AddBookForm = () => {
       published.reset();
       genre.reset();
       setGenres([]);
+    },
+    update: (cache, response) => {
+      const newBook = response.data?.addBook;
+      if (!newBook) {
+        return;
+      }
+
+      const cachedBooks = cache.readQuery({ query: ALL_BOOKS_SANS_GENRES });
+      if (cachedBooks) {
+        cache.writeQuery({
+          query: ALL_BOOKS_SANS_GENRES,
+          data: { allBooks: [newBook, ...cachedBooks.allBooks] },
+        });
+      }
+
+      // Behold, the hidden complexity: This MIGHT have created a new author!!
+      const newBookAuthor = newBook.author;
+      const cachedAuthors = cache.readQuery({ query: ALL_AUTHORS });
+      if (cachedAuthors) {
+        const authorExists = cachedAuthors.allAuthors.find(
+          (author) => author.id === newBookAuthor.id
+        );
+        if (!authorExists) {
+          cache.writeQuery({
+            query: ALL_AUTHORS,
+            data: { allAuthors: [...cachedAuthors.allAuthors, newBookAuthor] }, //Need to make sure this query returns ALL necessary data for the author
+          });
+        }
+      }
     },
   });
 

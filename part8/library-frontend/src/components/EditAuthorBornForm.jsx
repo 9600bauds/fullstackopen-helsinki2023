@@ -13,7 +13,6 @@ const EditAuthorBornForm = () => {
   const born = useField(`born`);
 
   const [editAuthorBorn] = useMutation(EDIT_AUTHOR_BORN, {
-    refetchQueries: [{ query: ALL_AUTHORS }],
     onError: (error) => {
       const messages = error.graphQLErrors.map((e) => e.message).join(`\n`);
       errorMessage(messages);
@@ -28,9 +27,35 @@ const EditAuthorBornForm = () => {
       successMessage(`Updated the birthyear for ${editedAuthor.name}`);
       born.reset();
     },
+    update: (cache, response) => {
+      const editedAuthor = response.data?.editAuthor;
+      if (!editedAuthor) {
+        return;
+      }
+
+      const cachedAuthors = cache.readQuery({ query: ALL_AUTHORS });
+      if (!cachedAuthors) {
+        return;
+      }
+
+      const updatedAuthors = cachedAuthors.allAuthors.map((author) =>
+        author.id === editedAuthor.id
+          ? { ...author, born: editedAuthor.born }
+          : author
+      );
+
+      cache.writeQuery({
+        query: ALL_AUTHORS,
+        data: { allAuthors: updatedAuthors },
+      });
+    },
   });
 
   const token = localStorage.getItem(`libraryToken`);
+  const authorNameQuery = useQuery(ALL_AUTHORS, {
+    skip: !token,
+  });
+
   if (!token) {
     return (
       <div>
@@ -41,8 +66,6 @@ const EditAuthorBornForm = () => {
       </div>
     );
   }
-
-  const authorNameQuery = useQuery(ALL_AUTHORS);
 
   if (authorNameQuery.loading) {
     return (
