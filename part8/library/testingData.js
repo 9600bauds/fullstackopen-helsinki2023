@@ -73,8 +73,16 @@ export async function resetDb() {
   await Author.deleteMany({});
   console.log(`Database wiped.`);
 
+  console.log(`Updating author bookCount...`);
+  const authorsWithBookCount = authors.map((author) => {
+    const thisAuthorBookCount = books.filter(
+      (book) => book.author === author.name
+    ).length;
+    return { ...author, bookCount: thisAuthorBookCount };
+  });
+
   console.log(`Seeding authors...`);
-  await Author.insertMany(authors);
+  await Author.insertMany(authorsWithBookCount);
   console.log(`Authors seeded.`);
 
   console.log(`Seeding books...`);
@@ -86,5 +94,6 @@ export async function resetDb() {
   });
 
   await Book.insertMany(booksWithAuthorIds);
+
   console.log(`Books seeded.`);
 }

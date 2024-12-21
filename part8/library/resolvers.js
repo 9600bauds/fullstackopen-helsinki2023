@@ -90,12 +90,24 @@ const resolvers = {
       }
 
       try {
+        /*
+        //Unoptimized version
         let author = await Author.findOne({ name: args.author });
 
         if (!author) {
           author = new Author({ name: args.author });
           await author.save();
         }
+        author.bookCount = author.bookCount + 1;
+        await author.save();
+
+        */
+        // Optimized version
+        const author = await Author.findOneAndUpdate(
+          { name: args.author },
+          { $inc: { bookCount: 1 } },
+          { new: true, upsert: true } // Create if not found, return the modified doc
+        );
 
         const book = new Book({ ...args, author: author._id });
         await book.save();
@@ -144,12 +156,6 @@ const resolvers = {
           },
         });
       }
-    },
-  },
-
-  Author: {
-    bookCount: async (root) => {
-      return Book.countDocuments({ author: root._id });
     },
   },
 
