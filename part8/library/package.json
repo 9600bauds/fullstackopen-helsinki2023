@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "@apollo/server": "^4.11.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "graphql": "^16.10.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.8.3",

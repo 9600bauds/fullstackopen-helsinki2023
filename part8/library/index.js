@@ -1,15 +1,17 @@
 import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
-import { GraphQLError } from 'graphql';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import express from 'express';
+import cors from 'cors';
+import http from 'http';
 import jwt from 'jsonwebtoken';
-
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-import typeDefs from './typeDefs.js';
+import typeDefs from './schema.js';
+import resolvers from './resolvers.js';
 
-import Book from './models/Book.js';
-import Author from './models/Author.js';
 import { resetDb } from './testingData.js';
 import User from './models/User.js';
 
@@ -29,167 +31,43 @@ mongoose
     console.log(`error connection to MongoDB:`, error.message);
   });
 
-const resolvers = {
-  Query: {
-    me: (root, args, context) => {
-      return context.currentUser;
-    },
-    bookCount: async () => Book.collection.countDocuments(),
-    authorCount: async () => Author.collection.countDocuments(),
-    allAuthors: async () => Author.find({}),
-    allBooks: async (root, args) => {
-      const filters = {};
-      if (args.author) {
-        const author = await Author.findOne({ name: args.author });
-        if (!author) {
-          return [];
+// setup is now within a function
+const start = async () => {
+  const app = express();
+  const httpServer = http.createServer(app);
+
+  const server = new ApolloServer({
+    schema: makeExecutableSchema({ typeDefs, resolvers }),
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  });
+
+  await server.start();
+
+  app.use(
+    `/`,
+    cors(),
+    express.json(),
+    expressMiddleware(server, {
+      context: async ({ req }) => {
+        const auth = req ? req.headers.authorization : null;
+        if (auth && auth.startsWith(`Bearer `)) {
+          const decodedToken = jwt.verify(
+            auth.substring(7),
+            process.env.SECRET
+          );
+          const currentUser = await User.findById(decodedToken.id);
+          return { currentUser };
         }
-        filters.author = author._id;
-      }
-      if (args.genre) {
-        filters.genres = { $in: [args.genre] };
-      }
-      return Book.find(filters).populate(`author`);
-    },
-    allGenres: async () => {
-      const books = await Book.find({});
-      const allGenres = books.reduce((genres, book) => {
-        book.genres.forEach((genre) => {
-          if (!genres.includes(genre)) {
-            genres.push(genre);
-          }
-        });
-        return genres;
-      }, []);
-      return allGenres;
-    },
-  },
+      },
+    })
+  );
 
-  Mutation: {
-    createUser: async (root, args) => {
-      const user = new User({
-        username: args.username,
-        favoriteGenre: args.favoriteGenre,
-      });
+  const PORT = process.env.PORT || 4000;
 
-      return user.save().catch((error) => {
-        throw new GraphQLError(`Creating the user failed`, {
-          extensions: {
-            code: `BAD_USER_INPUT`,
-            invalidArgs: args.username,
-            error,
-          },
-        });
-      });
-    },
-
-    login: async (root, args) => {
-      const user = await User.findOne({ username: args.username });
-
-      if (!user || args.password !== process.env.GLOBAL_PW) {
-        throw new GraphQLError(`Wrong credentials`, {
-          extensions: {
-            code: `BAD_USER_INPUT`,
-          },
-        });
-      }
-
-      const userForToken = {
-        username: user.username,
-        id: user._id,
-      };
-
-      return { value: jwt.sign(userForToken, process.env.SECRET) };
-    },
-
-    addBook: async (root, args, context) => {
-      const currentUser = context.currentUser;
-      if (!currentUser) {
-        throw new GraphQLError(`not authenticated`, {
-          extensions: {
-            code: `BAD_USER_INPUT`,
-          },
-        });
-      }
-
-      try {
-        let author = await Author.findOne({ name: args.author });
-
-        if (!author) {
-          author = new Author({ name: args.author });
-          await author.save();
-        }
-
-        const book = new Book({ ...args, author: author._id });
-        await book.save();
-        return book.populate(`author`);
-      } catch (error) {
-        throw new GraphQLError(`Adding book failed!`, {
-          extensions: {
-            code: `BAD_USER_INPUT`,
-            invalidArgs: args,
-            error,
-          },
-        });
-      }
-    },
-
-    editAuthor: async (root, args, context) => {
-      const currentUser = context.currentUser;
-      if (!currentUser) {
-        throw new GraphQLError(`not authenticated`, {
-          extensions: {
-            code: `BAD_USER_INPUT`,
-          },
-        });
-      }
-
-      try {
-        const author = await Author.findOne({ name: args.name });
-        if (!author) {
-          return null;
-        }
-
-        author.born = args.setBornTo; // todo: in the future I guess other args might be here too
-
-        const updatedAuthor = await author.save();
-        return updatedAuthor;
-      } catch (error) {
-        throw new GraphQLError(`Editing author failed!`, {
-          extensions: {
-            code: `BAD_USER_INPUT`,
-            invalidArgs: args,
-            error,
-          },
-        });
-      }
-    },
-  },
-
-  Author: {
-    bookCount: async (root) => {
-      return Book.countDocuments({ author: root._id });
-    },
-  },
+  httpServer.listen(PORT, async () => {
+    await resetDb();
+    console.log(`Server is now running on http://localhost:${PORT}`);
+  });
 };
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
-
-startStandaloneServer(server, {
-  listen: { port: process.env.PORT || 4000 },
-  context: async ({ req, res }) => {
-    const auth = req ? req.headers.authorization : null;
-    if (auth && auth.startsWith(`Bearer `)) {
-      const decodedToken = jwt.verify(auth.substring(7), process.env.SECRET);
-      const currentUser = await User.findById(decodedToken.id);
-      return { currentUser };
-    }
-  },
-}).then(async ({ url }) => {
-  await resetDb();
-
-  console.log(`Server ready at ${url}`);
-});
+start();
