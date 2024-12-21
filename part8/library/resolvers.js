@@ -3,7 +3,9 @@ import jwt from 'jsonwebtoken';
 import Author from './models/Author.js';
 import Book from './models/Book.js';
 import User from './models/User.js';
+import { PubSub } from 'graphql-subscriptions';
 
+const pubsub = new PubSub();
 const resolvers = {
   Query: {
     me: (root, args, context) => {
@@ -97,6 +99,9 @@ const resolvers = {
 
         const book = new Book({ ...args, author: author._id });
         await book.save();
+
+        pubsub.publish(`BOOK_ADDED`, { bookAdded: book });
+
         return book.populate(`author`);
       } catch (error) {
         throw new GraphQLError(`Adding book failed!`, {
@@ -144,6 +149,12 @@ const resolvers = {
   Author: {
     bookCount: async (root) => {
       return Book.countDocuments({ author: root._id });
+    },
+  },
+
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterableIterator(`BOOK_ADDED`),
     },
   },
 };
