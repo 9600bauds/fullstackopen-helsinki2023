@@ -1,3 +1,30 @@
+interface ExerciseInputs {
+  target: number;
+  periods: number[];
+}
+
+const parseArguments = (args: string[]): ExerciseInputs => {
+  if (args.length < 4) throw new Error('Not enough arguments');
+  const target = Number(args[2]);
+  if(isNaN(target)){
+    throw new Error('Target value was not a number');
+  }
+
+  let periods: number[] = [];
+  for(let i: number = 4; i < args.length; i++){
+    const thisPeriod = Number(args[i]);
+    if(isNaN(thisPeriod)){
+      throw new Error(`Period ${args[i]} is not a number`)
+    }
+    periods = periods.concat(thisPeriod)
+  }
+
+  return {
+    target,
+    periods
+  }
+
+}
 interface ExerciseResults { 
   periodLength: number,
   trainingDays: number,
@@ -54,7 +81,8 @@ const calculateExercises = (target: number, periods: number[]) : ExerciseResults
 }
 
 try {
-  console.log(calculateExercises(2, [3, 0, 2, 4.5, 0, 3, 1]))
+  const {target, periods} = parseArguments(process.argv)
+  console.log(calculateExercises(target, periods))
 } catch (error: unknown) {
   let errorMessage = 'Something went wrong: '
   // here we can not use error.message
@@ -66,3 +94,5 @@ try {
 
   console.log(errorMessage);
 }
+
+export default calculateExercises; //Turn this into a module so we don't have nasty scope voodoo
