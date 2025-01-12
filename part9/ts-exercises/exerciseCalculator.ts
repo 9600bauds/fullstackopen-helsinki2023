@@ -65,7 +65,7 @@ const calculateExercises = (target: number, periods: number[]) : ExerciseResults
   else if(rating < 3){
     ratingDescription = "not too bad but could be better";
   }
-  else if(rating < 4){
+  else{
     ratingDescription = "good job";
   }
 
