@@ -44,19 +44,21 @@ const calculateBmi = (cms: number, kgs: number) : string => {
   }
 }
 
-try {
-  const { cms, kgs } = parseArguments(process.argv);
-  console.log(calculateBmi(cms, kgs))
-} catch (error: unknown) {
-  let errorMessage = 'Something went wrong: '
-  // here we can not use error.message
-  if (error instanceof Error) {
-    // the type is narrowed and we can refer to error.message
-    errorMessage += error.message;  
+if(require.main === module){
+  try {
+    const { cms, kgs } = parseArguments(process.argv);
+    console.log(calculateBmi(cms, kgs))
+  } catch (error: unknown) {
+    let errorMessage = 'Something went wrong: '
+    // here we can not use error.message
+    if (error instanceof Error) {
+      // the type is narrowed and we can refer to error.message
+      errorMessage += error.message;  
+    }
+    // here we can not use error.message
+  
+    console.log(errorMessage);
   }
-  // here we can not use error.message
-
-  console.log(errorMessage);
 }
 
 export default calculateBmi; //Turn this into a module so we don't have nasty scope voodoo
