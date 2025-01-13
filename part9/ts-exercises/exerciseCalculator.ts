@@ -77,19 +77,21 @@ const calculateExercises = (
   };
 };
 
-try {
-  const { target, periods } = parseArguments(process.argv);
-  console.log(calculateExercises(target, periods));
-} catch (error: unknown) {
-  let errorMessage = 'Something went wrong: ';
-  // here we can not use error.message
-  if (error instanceof Error) {
-    // the type is narrowed and we can refer to error.message
-    errorMessage += error.message;
-  }
-  // here we can not use error.message
+if (require.main === module) {
+  try {
+    const { target, periods } = parseArguments(process.argv);
+    console.log(calculateExercises(target, periods));
+  } catch (error: unknown) {
+    let errorMessage = 'Something went wrong: ';
+    // here we can not use error.message
+    if (error instanceof Error) {
+      // the type is narrowed and we can refer to error.message
+      errorMessage += error.message;
+    }
+    // here we can not use error.message
 
-  console.log(errorMessage);
+    console.log(errorMessage);
+  }
 }
 
 export default calculateExercises; //Turn this into a module so we don't have nasty scope voodoo
