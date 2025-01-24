@@ -1,5 +1,6 @@
 import express from 'express';
 import patientsService from '../services/patientsService';
+import { obj2NewPatient } from '../utils';
 
 const patientsRouter = express.Router();
 
@@ -9,21 +10,18 @@ patientsRouter.get('/', (_req, res) => {
 });
 
 patientsRouter.post('/', (req, res) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { name, dateOfBirth, ssn, gender, occupation } = req.body;
-  const addedEntry = patientsService.addPatient({
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    name,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    dateOfBirth,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    ssn,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    gender,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    occupation,
-  });
-  res.json(addedEntry);
+  try {
+    const newPatient = obj2NewPatient(req.body);
+
+    const addedEntry = patientsService.addPatient(newPatient);
+    res.json(addedEntry);
+  } catch (error: unknown) {
+    let errorMessage = 'Something went wrong!';
+    if (error instanceof Error) {
+      errorMessage = 'Error: ' + error.message;
+    }
+    res.status(400).send(errorMessage);
+  }
 });
 
 export default patientsRouter;

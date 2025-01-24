@@ -1,24 +1,23 @@
 import patientsData from '../data/patientsData';
-import { NonSensitivePatient, Patient, newPatient } from '../types/types';
+import { NonSensitivePatient, Patient, NewPatient } from '../types/types';
 import { v1 as uuid } from 'uuid';
+import { obj2NewPatient, patient2NonSensitivePatient } from '../utils';
 
-const patients: Patient[] = patientsData;
+const patients: Patient[] = patientsData.map((obj) => {
+  const object = obj2NewPatient(obj) as Patient;
+  object.id = obj.id;
+  return object;
+});
 
 const getPatients = (): Patient[] => {
   return patients;
-};
-
-// Ugly TS hack, uses destructuring to actually omit the ssn
-const patient2NonSensitivePatient = (patient: Patient): NonSensitivePatient => {
-  const { ssn: _ssn, ...onlyTheRelevantFields } = patient; //Evil destructuring
-  return onlyTheRelevantFields;
 };
 
 const getNonSensitivePatients = (): NonSensitivePatient[] => {
   return patients.map((patient) => patient2NonSensitivePatient(patient));
 };
 
-const addPatient = (patientData: newPatient): Patient => {
+const addPatient = (patientData: NewPatient): Patient => {
   const id = uuid();
 
   const patient = {
