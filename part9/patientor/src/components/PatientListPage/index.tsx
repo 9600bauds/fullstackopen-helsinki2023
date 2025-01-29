@@ -30,11 +30,16 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
     try {
       const patient = await patientService.create(values);
       setPatients(patients.concat(patient));
-      setModalOpen(false);
+      closeModal();
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         if (e?.response?.data && typeof e?.response?.data === "string") {
           const message = e.response.data.replace('Something went wrong. Error: ', '');
+          console.error(message);
+          setError(message);
+        } else if (e?.response?.data && typeof e?.response?.data === "object" && Array.isArray(e?.response?.data?.error)) {
+          const errorArray = e.response.data.error;
+          const message = errorArray.map(error => error.message || error).join(",");
           console.error(message);
           setError(message);
         } else {
