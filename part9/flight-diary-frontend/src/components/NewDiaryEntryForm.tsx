@@ -14,6 +14,7 @@ interface NewDiaryEntryFormProps {
 }
 
 const NewDiaryEntryForm = ({ addNewEntry }: NewDiaryEntryFormProps) => {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [newDate, setNewDate] = useState('');
   const [newWeather, setNewWeather] = useState<Weather>('sunny');
   const [newVisibility, setNewVisibility] = useState<Visibility>('great');
@@ -25,7 +26,7 @@ const NewDiaryEntryForm = ({ addNewEntry }: NewDiaryEntryFormProps) => {
     setNewVisibility('great');
     setNewComment('');
   };
-  const submitDiaryEntry = (event: React.SyntheticEvent) => {
+  const submitDiaryEntry = async (event: React.SyntheticEvent) => {
     event.preventDefault();
     const entryToAdd: NewDiaryEntry = {
       date: newDate,
@@ -34,20 +35,19 @@ const NewDiaryEntryForm = ({ addNewEntry }: NewDiaryEntryFormProps) => {
       comment: newComment,
     };
     try {
-      createDiaryEntry(entryToAdd).then((data) => {
-        addNewEntry(data);
-        resetForm();
-      });
+      const data = await createDiaryEntry(entryToAdd);
+      addNewEntry(data);
+      resetForm();
+      setErrorMessage(null); // Clear previous errors
     } catch (error) {
       console.error('Failed to create diary entry:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Unknown error');
     }
-
-    console.log(entryToAdd);
-    //setNotes(notes.concat(noteToAdd));
   };
 
   return (
     <div>
+      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
       <form onSubmit={submitDiaryEntry}>
         <input
           value={newDate}

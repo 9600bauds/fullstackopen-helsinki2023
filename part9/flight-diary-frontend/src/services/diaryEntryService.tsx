@@ -9,6 +9,20 @@ export const getAllDiaryEntries = async () => {
 };
 
 export const createDiaryEntry = async (object: NewDiaryEntry) => {
-  const response = await axios.post<NewDiaryEntry>(baseUrl, object);
-  return response.data as DiaryEntry;
+  try {
+    const response = await axios.post<NewDiaryEntry>(baseUrl, object);
+    return response.data as DiaryEntry;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (typeof error.response?.data === 'string') {
+        throw new Error(error.response.data);
+      }
+      // Fallback for other Axios errors
+      throw new Error('An error occurred while creating the diary entry.');
+    } else {
+      // Fallback for mysteries
+      console.error(error);
+      throw new Error('An unknown error occurred.');
+    }
+  }
 };
