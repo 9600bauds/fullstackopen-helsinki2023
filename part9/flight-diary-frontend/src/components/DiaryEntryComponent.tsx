@@ -1,5 +1,5 @@
 import React from 'react';
-import type { DiaryEntry } from './types';
+import type { DiaryEntry } from '../types';
 
 const DiaryEntryComponent: React.FC<{ entry: DiaryEntry }> = ({ entry }) => {
   return (
