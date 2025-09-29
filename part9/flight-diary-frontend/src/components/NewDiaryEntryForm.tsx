@@ -26,6 +26,10 @@ const NewDiaryEntryForm = ({ addNewEntry }: NewDiaryEntryFormProps) => {
     setNewVisibility('great');
     setNewComment('');
   };
+  const clearError = () => {
+    setErrorMessage(null);
+  };
+
   const submitDiaryEntry = async (event: React.SyntheticEvent) => {
     event.preventDefault();
     const entryToAdd: NewDiaryEntry = {
@@ -38,53 +42,78 @@ const NewDiaryEntryForm = ({ addNewEntry }: NewDiaryEntryFormProps) => {
       const data = await createDiaryEntry(entryToAdd);
       addNewEntry(data);
       resetForm();
-      setErrorMessage(null); // Clear previous errors
+      clearError();
     } catch (error) {
       console.error('Failed to create diary entry:', error);
       setErrorMessage(error instanceof Error ? error.message : 'Unknown error');
     }
   };
 
+  // This is considered an "anti-pattern" for tailwind but tailwind is probably overkill for this project anyways
+  const inputClasses =
+    'border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300';
+
   return (
-    <div>
-      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
-      <form onSubmit={submitDiaryEntry}>
+    <div className="mb-6 border p-4 rounded shadow-sm bg-gray-50">
+      {errorMessage && (
+        <div className="mb-2 text-red-600 font-medium bg-red-100 rounded px-3 py-2 border border-red-300">
+          {errorMessage}
+        </div>
+      )}
+      <form onSubmit={submitDiaryEntry} className="flex flex-col gap-3">
         <input
+          className={inputClasses}
+          type="date"
           value={newDate}
           onChange={(event) => setNewDate(event.target.value)}
         />
 
-        <select
-          id="weatherSelect"
-          value={newWeather}
-          onChange={(event) => setNewWeather(event.target.value as Weather)}
-        >
+        <div className="flex gap-4">
+          Weather:
           {weatherOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
+            <span>
+              <input
+                type="radio"
+                id={option}
+                name="weatherButton"
+                onChange={() => setNewWeather(option as Weather)}
+                checked={newWeather === option}
+                className="mr-1"
+              />
+              <label htmlFor={option}>{option}</label>
+            </span>
           ))}
-        </select>
+        </div>
 
-        <select
-          id="visibilitySelect"
-          value={newVisibility}
-          onChange={(event) =>
-            setNewVisibility(event.target.value as Visibility)
-          }
-        >
+        <div className="flex gap-4">
+          Visibility:
           {visibilityOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
+            <span>
+              <input
+                type="radio"
+                id={option}
+                name="visibilityButton"
+                onChange={() => setNewVisibility(option as Visibility)}
+                checked={newVisibility === option}
+                className="mr-1"
+              />
+              <label htmlFor={option}>{option}</label>
+            </span>
           ))}
-        </select>
+        </div>
 
         <input
+          className={inputClasses}
+          placeholder="Comment"
           value={newComment}
           onChange={(event) => setNewComment(event.target.value)}
         />
-        <button type="submit">add</button>
+        <button
+          type="submit"
+          className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 transition"
+        >
+          Add
+        </button>
       </form>
     </div>
   );
