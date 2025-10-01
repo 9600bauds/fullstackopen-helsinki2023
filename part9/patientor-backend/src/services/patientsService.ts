@@ -3,14 +3,25 @@ import { NonSensitivePatient, Patient, NewPatient } from '../types/types';
 import { v1 as uuid } from 'uuid';
 import { newPatientSchema, patient2NonSensitivePatient } from '../utils';
 
-const patients: Patient[] = patientsData.map((obj) => {
-  const object = newPatientSchema.parse(obj) as Patient;
-  object.id = obj.id;
-  return object;
-});
+const createPatient = (obj: NewPatient, id?: string | null): Patient => {
+  const patient = newPatientSchema.parse(obj) as Patient;
+  if (id) patient.id = id;
+  else patient.id = uuid();
+  patient.entries = [];
+  return patient;
+};
+
+const patients: Patient[] = patientsData.map((obj) =>
+  createPatient(obj, obj.id)
+);
 
 const getPatients = (): Patient[] => {
   return patients;
+};
+
+const getPatient = (id: string): Patient | undefined => {
+  const patient = patients.find((p) => p.id === id);
+  return patient;
 };
 
 const getNonSensitivePatients = (): NonSensitivePatient[] => {
@@ -18,12 +29,7 @@ const getNonSensitivePatients = (): NonSensitivePatient[] => {
 };
 
 const addPatient = (patientData: NewPatient): Patient => {
-  const id = uuid();
-
-  const patient = {
-    id,
-    ...patientData,
-  };
+  const patient = createPatient(patientData);
 
   patients.push(patient);
   return patient;
@@ -31,6 +37,7 @@ const addPatient = (patientData: NewPatient): Patient => {
 
 const patientsService = {
   getPatients,
+  getPatient,
   getNonSensitivePatients,
   addPatient,
 };

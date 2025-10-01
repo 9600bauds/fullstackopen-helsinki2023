@@ -11,6 +11,15 @@ patientsRouter.get('/', (_req, res) => {
   res.send(allPatients);
 });
 
+patientsRouter.get('/:id', (_req, res) => {
+  const patient = patientsService.getPatient(_req.params.id);
+  if (!patient) {
+    res.status(404).send({ error: 'Patient not found' });
+    return;
+  }
+  res.send(patient);
+});
+
 const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
   try {
     newPatientSchema.parse(req.body);
