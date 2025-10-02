@@ -1,9 +1,9 @@
-import { useParams } from "react-router-dom";
-import { Gender, Patient } from "../../types";
-import { useEffect, useState } from "react";
+import { useParams } from 'react-router-dom';
+import { Gender, Patient } from '../../types';
+import { useEffect, useState } from 'react';
 
-import patientService from "../../services/patients";
-import { Female, Male, Transgender } from "@mui/icons-material";
+import patientService from '../../services/patients';
+import { Female, Male, Transgender } from '@mui/icons-material';
 
 const PatientPage = () => {
   const id = useParams().id;
@@ -45,6 +45,28 @@ const PatientPage = () => {
       <p>SSN: {patientData.ssn}</p>
       <p>Occupation: {patientData.occupation}</p>
       <p>Date of Birth: {patientData.dateOfBirth}</p>
+      <h3>Entries:</h3>
+      {patientData.entries.length === 0 ? (
+        <p>No entries</p>
+      ) : (
+        <ul>
+          {patientData.entries.map((entry) => (
+            <li key={entry.id}>
+              Date: {entry.date}
+              <br />
+              Description: {entry.description}
+              <br />
+              {entry.diagnosisCodes && entry.diagnosisCodes.length > 0 && (
+                <ul>
+                  {entry.diagnosisCodes.map((code) => (
+                    <li key={code}>{code}</li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
