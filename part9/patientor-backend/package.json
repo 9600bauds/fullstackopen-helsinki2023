@@ -7,6 +7,7 @@
     "tsc": "tsc",
     "dev": "ts-node-dev src/index.ts",
     "lint": "eslint .",
+    "format": "prettier --write .",
     "start": "node build/src/index.js"
   },
   "author": "",

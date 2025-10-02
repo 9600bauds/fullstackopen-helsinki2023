@@ -1,6 +1,6 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import stylistic from "@stylistic/eslint-plugin";
+import stylistic from '@stylistic/eslint-plugin';
 import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier'; // Import the Prettier config
 
@@ -18,10 +18,10 @@ export default tseslint.config({
     },
   },
   plugins: {
-    "@stylistic": stylistic,
-    'prettier': prettierPlugin,
+    '@stylistic': stylistic,
+    prettier: prettierPlugin,
   },
-  ignores: ["build/*"],
+  ignores: ['build/*'],
   rules: {
     '@stylistic/semi': 'error',
     '@typescript-eslint/no-unsafe-assignment': 'error',
@@ -32,7 +32,7 @@ export default tseslint.config({
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',
-      { 'argsIgnorePattern': '^_', 'varsIgnorePattern': '^_' }
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
     'prettier/prettier': 'error',
   },

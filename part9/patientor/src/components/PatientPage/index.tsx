@@ -1,9 +1,9 @@
-import { useParams } from 'react-router-dom';
-import { Gender, Patient } from '../../types';
-import { useEffect, useState } from 'react';
+import { useParams } from "react-router-dom";
+import { Gender, Patient } from "../../types";
+import { useEffect, useState } from "react";
 
-import patientService from '../../services/patients';
-import { Female, Male, Transgender } from '@mui/icons-material';
+import patientService from "../../services/patients";
+import { Female, Male, Transgender } from "@mui/icons-material";
 
 const PatientPage = () => {
   const id = useParams().id;
