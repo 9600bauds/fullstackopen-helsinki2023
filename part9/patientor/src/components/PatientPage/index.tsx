@@ -1,11 +1,15 @@
-import { useParams } from "react-router-dom";
-import { Gender, Patient } from "../../types";
-import { useEffect, useState } from "react";
+import { useParams } from 'react-router-dom';
+import { Diagnosis, Gender, Patient } from '../../types';
+import { useEffect, useState } from 'react';
 
-import patientService from "../../services/patients";
-import { Female, Male, Transgender } from "@mui/icons-material";
+import patientService from '../../services/patients';
+import { Female, Male, Transgender } from '@mui/icons-material';
+import { EntryDetails } from './EntryDetails';
 
-const PatientPage = () => {
+interface Props {
+  diagnoses?: Diagnosis[];
+}
+const PatientPage = ({ diagnoses }: Props) => {
   const id = useParams().id;
 
   const [patientData, setPatientData] = useState<Patient | null>(null);
@@ -51,19 +55,7 @@ const PatientPage = () => {
       ) : (
         <ul>
           {patientData.entries.map((entry) => (
-            <li key={entry.id}>
-              Date: {entry.date}
-              <br />
-              Description: {entry.description}
-              <br />
-              {entry.diagnosisCodes && entry.diagnosisCodes.length > 0 && (
-                <ul>
-                  {entry.diagnosisCodes.map((code) => (
-                    <li key={code}>{code}</li>
-                  ))}
-                </ul>
-              )}
-            </li>
+            <EntryDetails key={entry.id} entry={entry} diagnoses={diagnoses} />
           ))}
         </ul>
       )}

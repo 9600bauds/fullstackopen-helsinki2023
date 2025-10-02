@@ -1,4 +1,4 @@
-import { useState, SyntheticEvent } from "react";
+import { useState, SyntheticEvent } from 'react';
 
 import {
   TextField,
@@ -8,9 +8,9 @@ import {
   Grid,
   Button,
   SelectChangeEvent,
-} from "@mui/material";
+} from '@mui/material';
 
-import { PatientFormValues, Gender } from "../../types";
+import { PatientFormValues, Gender } from '../../types';
 
 interface Props {
   onCancel: () => void;
@@ -28,15 +28,15 @@ const genderOptions: GenderOption[] = Object.values(Gender).map((v) => ({
 }));
 
 const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
-  const [name, setName] = useState("");
-  const [occupation, setOccupation] = useState("");
-  const [ssn, setSsn] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [name, setName] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [ssn, setSsn] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState(Gender.Other);
 
   const onGenderChange = (event: SelectChangeEvent<string>) => {
     event.preventDefault();
-    if (typeof event.target.value === "string") {
+    if (typeof event.target.value === 'string') {
       const value = event.target.value;
       const gender = Object.values(Gender).find((g) => g.toString() === value);
       if (gender) {
@@ -104,7 +104,7 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
             <Button
               color="secondary"
               variant="contained"
-              style={{ float: "left" }}
+              style={{ float: 'left' }}
               type="button"
               onClick={onCancel}
             >
@@ -114,7 +114,7 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
           <Grid item>
             <Button
               style={{
-                float: "right",
+                float: 'right',
               }}
               type="submit"
               variant="contained"

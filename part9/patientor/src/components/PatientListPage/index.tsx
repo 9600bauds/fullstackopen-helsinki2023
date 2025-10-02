@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Box,
   Table,
@@ -9,16 +9,16 @@ import {
   TableRow,
   TableBody,
   Link,
-} from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
-import axios from "axios";
+} from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import axios from 'axios';
 
-import { PatientFormValues, Patient } from "../../types";
-import AddPatientModal from "../AddPatientModal";
+import { PatientFormValues, Patient } from '../../types';
+import AddPatientModal from '../AddPatientModal';
 
-import HealthRatingBar from "../HealthRatingBar";
+import HealthRatingBar from '../HealthRatingBar';
 
-import patientService from "../../services/patients";
+import patientService from '../../services/patients';
 
 interface Props {
   patients: Patient[];
@@ -43,30 +43,30 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
       closeModal();
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        if (e?.response?.data && typeof e?.response?.data === "string") {
+        if (e?.response?.data && typeof e?.response?.data === 'string') {
           const message = e.response.data.replace(
-            "Something went wrong. Error: ",
-            "",
+            'Something went wrong. Error: ',
+            ''
           );
           console.error(message);
           setError(message);
         } else if (
           e?.response?.data &&
-          typeof e?.response?.data === "object" &&
+          typeof e?.response?.data === 'object' &&
           Array.isArray(e?.response?.data?.error)
         ) {
           const errorArray = e.response.data.error;
           const message = errorArray
             .map((error: { message?: string }) => error.message || error)
-            .join(",");
+            .join(',');
           console.error(message);
           setError(message);
         } else {
-          setError("Unrecognized axios error");
+          setError('Unrecognized axios error');
         }
       } else {
-        console.error("Unknown error", e);
-        setError("Unknown error");
+        console.error('Unknown error', e);
+        setError('Unknown error');
       }
     }
   };
@@ -78,7 +78,7 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
           Patient list
         </Typography>
       </Box>
-      <Table style={{ marginBottom: "1em" }}>
+      <Table style={{ marginBottom: '1em' }}>
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
