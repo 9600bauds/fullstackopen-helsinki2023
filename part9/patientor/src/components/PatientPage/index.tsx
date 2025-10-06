@@ -1,29 +1,15 @@
 import { useParams } from 'react-router-dom';
-import { Diagnosis, Gender, Patient } from '../../types';
+import { Gender, Patient } from '../../types';
 import { useEffect, useState } from 'react';
 
 import patientService from '../../services/patients';
 import { Female, Male, Transgender } from '@mui/icons-material';
 import { EntryDetails } from './EntryDetails';
 
-interface Props {
-  diagnoses?: Diagnosis[];
-}
-const PatientPage = ({ diagnoses }: Props) => {
+const PatientPage = () => {
   const id = useParams().id;
 
   const [patientData, setPatientData] = useState<Patient | null>(null);
-
-  const gender2icon = (gender: Gender) => {
-    switch (gender) {
-      case Gender.Male:
-        return Male;
-      case Gender.Female:
-        return Female;
-      default:
-        return Transgender;
-    }
-  };
 
   useEffect(() => {
     if (!id) return;
@@ -38,7 +24,17 @@ const PatientPage = ({ diagnoses }: Props) => {
     return <p>Loading...</p>;
   }
 
-  const GenderIcon = gender2icon(patientData.gender);
+  const getGenderIcon = (gender: Gender) => {
+    switch (gender) {
+      case Gender.Male:
+        return Male;
+      case Gender.Female:
+        return Female;
+      default:
+        return Transgender;
+    }
+  };
+  const GenderIcon = getGenderIcon(patientData.gender);
 
   return (
     <div>
@@ -53,11 +49,11 @@ const PatientPage = ({ diagnoses }: Props) => {
       {patientData.entries.length === 0 ? (
         <p>No entries</p>
       ) : (
-        <ul>
+        <>
           {patientData.entries.map((entry) => (
-            <EntryDetails key={entry.id} entry={entry} diagnoses={diagnoses} />
+            <EntryDetails key={entry.id} entry={entry} />
           ))}
-        </ul>
+        </>
       )}
     </div>
   );
