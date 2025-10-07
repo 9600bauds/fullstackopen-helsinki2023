@@ -1,11 +1,10 @@
+import { newPatientSchema } from './schemas';
 import {
-  Gender,
+  Diagnosis,
   NewPatient,
   NonSensitivePatient,
   Patient,
 } from './types/types';
-
-import { z } from 'zod';
 
 // Ugly TS hack, uses destructuring to actually omit the ssn
 export const patient2NonSensitivePatient = (
@@ -15,14 +14,16 @@ export const patient2NonSensitivePatient = (
   return onlyTheRelevantFields;
 };
 
-export const newPatientSchema = z.object({
-  name: z.string().min(2),
-  dateOfBirth: z.string().date(),
-  ssn: z.string().min(3),
-  gender: z.nativeEnum(Gender),
-  occupation: z.string().optional(),
-});
-
 export const obj2NewPatient = (object: unknown): NewPatient => {
   return newPatientSchema.parse(object);
+};
+export const parseDiagnosisCodes = (
+  object: unknown
+): Array<Diagnosis['code']> => {
+  if (!object || typeof object !== 'object' || !('diagnosisCodes' in object)) {
+    // we will just trust the data to be in correct form
+    return [] as Array<Diagnosis['code']>;
+  }
+
+  return object.diagnosisCodes as Array<Diagnosis['code']>;
 };

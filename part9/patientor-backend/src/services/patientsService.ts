@@ -1,15 +1,12 @@
-import { NonSensitivePatient, Patient, NewPatient } from '../types/types';
+import {
+  NonSensitivePatient,
+  Patient,
+  NewPatient,
+  EntryWithoutId,
+} from '../types/types';
 import { v1 as uuid } from 'uuid';
-import { newPatientSchema, patient2NonSensitivePatient } from '../utils';
+import { patient2NonSensitivePatient } from '../utils';
 import patients from '../data/patientsData';
-
-const createPatient = (obj: NewPatient, id?: string | null): Patient => {
-  const patient = newPatientSchema.parse(obj) as Patient;
-  if (id) patient.id = id;
-  else patient.id = uuid();
-  patient.entries = [];
-  return patient;
-};
 
 const getPatients = (): Patient[] => {
   return patients;
@@ -25,10 +22,25 @@ const getNonSensitivePatients = (): NonSensitivePatient[] => {
 };
 
 const addPatient = (patientData: NewPatient): Patient => {
-  const patient = createPatient(patientData);
+  const newPatient: Patient = {
+    id: uuid(),
+    ...patientData,
+    entries: [],
+  };
 
-  patients.push(patient);
-  return patient;
+  patients.push(newPatient);
+  return newPatient;
+};
+
+const addEntry = (patientId: string, newEntry: EntryWithoutId) => {
+  const patient = getPatient(patientId);
+  if (!patient) {
+    throw new Error('Patient not found!');
+  }
+  const entry = { ...newEntry, id: uuid() };
+
+  patient.entries.push(entry);
+  return entry;
 };
 
 const patientsService = {
@@ -36,6 +48,7 @@ const patientsService = {
   getPatient,
   getNonSensitivePatients,
   addPatient,
+  addEntry,
 };
 
 export default patientsService;

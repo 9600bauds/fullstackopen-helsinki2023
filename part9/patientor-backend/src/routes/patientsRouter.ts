@@ -1,8 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
 import patientsService from '../services/patientsService';
-import { newPatientSchema } from '../utils';
+import { newEntrySchema } from '../schemas';
+import { newPatientSchema } from '../schemas';
 import { z } from 'zod';
-import { NewPatient, Patient } from '../types/types';
+import { Entry, NewEntry, NewPatient, Patient } from '../types/types';
+import { parseDiagnosisCodes } from '../utils';
 
 const patientsRouter = express.Router();
 
@@ -20,14 +22,53 @@ patientsRouter.get('/:id', (_req, res) => {
   res.send(patient);
 });
 
-const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
+const newEntryParser = (req: Request, _res: Response, next: NextFunction) => {
   try {
-    newPatientSchema.parse(req.body);
+    // Parse the body AND ATTACH the typed result back to the request
+    req.body = newEntrySchema.parse(req.body);
     next();
   } catch (error: unknown) {
     next(error);
   }
 };
+
+patientsRouter.post(
+  '/:id/entries',
+  newEntryParser,
+  (req: Request<{ id: string }, unknown, NewEntry>, res: Response<Entry>) => {
+    const newEntry = req.body; // Already validated by newEntryParser as middleware
+
+    const diagnosisCodes = parseDiagnosisCodes(newEntry);
+    const newEntryWithCodes = { ...newEntry, diagnosisCodes };
+
+    const addedEntry = patientsService.addEntry(
+      req.params.id,
+      newEntryWithCodes
+    );
+    res.json(addedEntry);
+  }
+);
+
+const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    // Parse the body AND ATTACH the typed result back to the request
+    req.body = newPatientSchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+patientsRouter.post(
+  '/',
+  newPatientParser,
+  (req: Request<unknown, unknown, NewPatient>, res: Response<Patient>) => {
+    const newPatient = req.body; // Already validated by newPatientParser as middleware
+
+    const addedPatient = patientsService.addPatient(newPatient);
+    res.json(addedPatient);
+  }
+);
 
 const errorMiddleware = (
   error: unknown,
@@ -41,15 +82,6 @@ const errorMiddleware = (
     next(error);
   }
 };
-
-patientsRouter.post(
-  '/',
-  newPatientParser,
-  (req: Request<unknown, unknown, NewPatient>, res: Response<Patient>) => {
-    const addedPatient = patientsService.addPatient(req.body);
-    res.json(addedPatient);
-  }
-);
 
 patientsRouter.use(errorMiddleware);
 
