@@ -1,10 +1,11 @@
 import { useParams } from 'react-router-dom';
-import { Gender, Patient } from '../../types';
+import { Entry, Gender, Patient } from '../../types';
 import { useEffect, useState } from 'react';
 
 import patientService from '../../services/patients';
 import { Female, Male, Transgender } from '@mui/icons-material';
 import { EntryDetails } from './EntryDetails';
+import AddEntryForm from './AddEntryForm';
 
 const PatientPage = () => {
   const id = useParams().id;
@@ -19,6 +20,15 @@ const PatientPage = () => {
     };
     void fetchPatientData();
   }, [id]);
+
+  const appendEntry = (entry: Entry) => {
+    if (patientData) {
+      setPatientData({
+        ...patientData,
+        entries: patientData.entries.concat(entry),
+      });
+    }
+  };
 
   if (!patientData) {
     return <p>Loading...</p>;
@@ -55,6 +65,7 @@ const PatientPage = () => {
           ))}
         </>
       )}
+      <AddEntryForm patientId={patientData.id} appendEntry={appendEntry} />
     </div>
   );
 };
