@@ -79,4 +79,6 @@ export type Entry =
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
 
+export type EntryTypeUnion = Entry['type'];
+
 export type EntryWithoutId = UnionOmit<Entry, 'id'>;

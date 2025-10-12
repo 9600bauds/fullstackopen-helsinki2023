@@ -25,6 +25,7 @@ patientsRouter.get('/:id', (_req, res) => {
 const newEntryParser = (req: Request, _res: Response, next: NextFunction) => {
   try {
     // Parse the body AND ATTACH the typed result back to the request
+    console.log('received new entry: ', req.body);
     req.body = newEntrySchema.parse(req.body);
     next();
   } catch (error: unknown) {
