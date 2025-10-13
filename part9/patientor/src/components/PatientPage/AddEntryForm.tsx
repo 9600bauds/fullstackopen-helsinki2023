@@ -8,6 +8,12 @@ import {
   InputLabel,
   MenuItem,
   FormHelperText,
+  Autocomplete,
+  Grid,
+  Paper,
+  Typography,
+  Divider,
+  Alert,
 } from '@mui/material';
 import {
   Entry,
@@ -26,6 +32,7 @@ import {
 } from 'react-hook-form';
 import patientService from '../../services/patients';
 import { assertNever } from '../../utils';
+import { useDiagnoses } from '../../contexts/DiagnosesContext';
 
 interface Props {
   patientId: string;
@@ -37,6 +44,8 @@ const AddEntryForm = ({ patientId, appendEntry }: Props) => {
   const clearError = () => {
     setError(null);
   };
+
+  const diagnoses = useDiagnoses();
 
   const {
     register,
@@ -117,66 +126,136 @@ const AddEntryForm = ({ patientId, appendEntry }: Props) => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-      Add new entry...<br></br>
-      {
-        error && (
-          <div style={{ color: 'red' }}>{`Error: ${error}`}</div>
-        ) /* Todo: Use MUI for error styling */
-      }
-      <FormControl fullWidth margin="normal" error={!!errors.type}>
-        <InputLabel id="entry-type-label">Entry Type</InputLabel>
-        <Controller
-          name="type"
-          control={control}
-          rules={{ required: 'Type is required' }}
-          render={({ field }) => (
-            <Select
-              labelId="type-label"
-              label="Entry Type"
-              {...field} // This spreads value, onChange, onBlur, etc.
-            >
-              <MenuItem value={'HealthCheck'}>Health Check</MenuItem>
-              <MenuItem value={'Hospital'}>Hospital</MenuItem>
-              <MenuItem value={'OccupationalHealthcare'}>
-                Occupational Healthcare
-              </MenuItem>
-            </Select>
-          )}
-        />
-        <FormHelperText>{errors.type?.message}</FormHelperText>
-      </FormControl>
-      <TextField
-        label="Description"
-        {...register('description', {
-          required: 'Description is required',
-        })}
-        error={!!errors.description}
-        helperText={errors.description?.message}
-      />
-      <TextField
-        label="Date"
-        type="date"
-        InputLabelProps={{ shrink: true }}
-        {...register('date', {
-          required: 'Date is required',
-        })}
-        error={!!errors.date}
-        helperText={errors.date?.message}
-      />
-      <TextField
-        label="Specialist"
-        {...register('specialist', {
-          required: 'Specialist is required',
-        })}
-        error={!!errors.specialist}
-        helperText={errors.specialist?.message}
-      />
-      {additionalFields(entryType)}
-      <Button type="submit" variant="contained" disabled={isSubmitting}>
-        {isSubmitting ? 'Submitting...' : 'Submit!'}
-      </Button>
-    </Box>
+    <Paper variant="outlined" style={{ padding: '16px', marginTop: '16px' }}>
+      <Typography variant="h6" component="h2" gutterBottom>
+        Add New Entry
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <Grid container spacing={2}>
+          {
+            error && (
+              <Grid item xs={12}>
+                <Alert severity="error">{`Error: ${error}`}</Alert>
+              </Grid>
+            ) /* Todo: Use MUI for error styling */
+          }
+          <Grid item xs={12}>
+            <TextField
+              label="Description"
+              fullWidth
+              {...register('description', {
+                required: 'Description is required',
+              })}
+              error={!!errors.description}
+              helperText={errors.description?.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Date"
+              type="date"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              {...register('date', {
+                required: 'Date is required',
+              })}
+              error={!!errors.date}
+              helperText={errors.date?.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Specialist"
+              fullWidth
+              {...register('specialist', {
+                required: 'Specialist is required',
+              })}
+              error={!!errors.specialist}
+              helperText={errors.specialist?.message}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Controller
+              name="diagnosisCodes"
+              control={control}
+              render={({ field }) => {
+                // The state stores only codes (string[]) but MUI's Autocomplete components uses Diagnosis[] directly
+                const selectedDiagnoses = diagnoses.filter((d) =>
+                  Array.isArray(field.value)
+                    ? field.value.includes(d.code)
+                    : false
+                );
+                return (
+                  <Autocomplete
+                    multiple
+                    disableCloseOnSelect
+                    options={diagnoses}
+                    value={selectedDiagnoses}
+                    getOptionLabel={(option) => option.code} // Display only the code in the input itself
+                    renderOption={(props, option) => (
+                      <li {...props}>
+                        {/* Display code and description in the search */}
+                        {option.code} - {option.name}
+                      </li>
+                    )}
+                    // onChange updates the form state with an array of codes (string[])
+                    onChange={(_event, newValue) => {
+                      field.onChange(newValue.map((option) => option.code));
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Diagnosis Codes"
+                        placeholder="Type to search..."
+                      />
+                    )}
+                  />
+                );
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel id="entry-type-label">Entry Type</InputLabel>
+              <Controller
+                name="type"
+                control={control}
+                rules={{ required: 'Type is required' }}
+                render={({ field }) => (
+                  <Select
+                    labelId="type-label"
+                    label="Entry Type"
+                    {...field} // This spreads value, onChange, onBlur, etc.
+                  >
+                    <MenuItem value={'HealthCheck'}>Health Check</MenuItem>
+                    <MenuItem value={'Hospital'}>Hospital</MenuItem>
+                    <MenuItem value={'OccupationalHealthcare'}>
+                      Occupational Healthcare
+                    </MenuItem>
+                  </Select>
+                )}
+              />
+              <FormHelperText>{errors.type?.message}</FormHelperText>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12}>
+            {additionalFields(entryType)}
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button type="submit" variant="contained" disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting...' : 'Submit!'}
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
+    </Paper>
   );
 };
 export default AddEntryForm;
@@ -188,26 +267,32 @@ type HospitalFieldsProps = {
 };
 export const HospitalFields = ({ register, errors }: HospitalFieldsProps) => {
   return (
-    <>
-      <TextField
-        label="Discharge Date"
-        type="date"
-        InputLabelProps={{ shrink: true }}
-        {...register('discharge.date', {
-          required: 'Discharge date is required',
-        })}
-        error={!!errors.discharge?.date}
-        helperText={errors.discharge?.date?.message}
-      />
-      <TextField
-        label="Discharge Criteria"
-        {...register('discharge.criteria', {
-          required: 'Discharge criteria is required',
-        })}
-        error={!!errors.discharge?.criteria}
-        helperText={errors.discharge?.criteria?.message}
-      />
-    </>
+    <Grid container spacing={2}>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Discharge Date"
+          type="date"
+          fullWidth
+          InputLabelProps={{ shrink: true }}
+          {...register('discharge.date', {
+            required: 'Discharge date is required',
+          })}
+          error={!!errors.discharge?.date}
+          helperText={errors.discharge?.date?.message}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Discharge Criteria"
+          fullWidth
+          {...register('discharge.criteria', {
+            required: 'Discharge criteria is required',
+          })}
+          error={!!errors.discharge?.criteria}
+          helperText={errors.discharge?.criteria?.message}
+        />
+      </Grid>
+    </Grid>
   );
 };
 
@@ -221,21 +306,20 @@ export const HealthCheckFields = ({
   errors,
 }: HealthCheckFieldsProps) => {
   return (
-    <>
-      <TextField
-        label="Health Check Rating"
-        type="number"
-        inputProps={{ min: 0, max: 3 }}
-        {...register('healthCheckRating', {
-          required: 'Health check rating is required',
-          min: { value: 0, message: 'Minimum rating is 0' },
-          max: { value: 3, message: 'Maximum rating is 3' },
-          valueAsNumber: true,
-        })}
-        error={!!errors.healthCheckRating}
-        helperText={errors.healthCheckRating?.message}
-      />
-    </>
+    <TextField
+      label="Health Check Rating"
+      type="number"
+      fullWidth
+      inputProps={{ min: 0, max: 3 }}
+      {...register('healthCheckRating', {
+        required: 'Health check rating is required',
+        min: { value: 0, message: 'Minimum rating is 0' },
+        max: { value: 3, message: 'Maximum rating is 3' },
+        valueAsNumber: true,
+      })}
+      error={!!errors.healthCheckRating}
+      helperText={errors.healthCheckRating?.message}
+    />
   );
 };
 
@@ -249,31 +333,44 @@ export const OccupationalHealthcareFields = ({
   errors,
 }: OccupationalHealthcareFieldsProps) => {
   return (
-    <>
-      <TextField
-        label="Employer Name"
-        {...register('employerName', {
-          required: 'Employer name is required',
-        })}
-        error={!!errors.employerName}
-        helperText={errors.employerName?.message}
-      />
-      <TextField
-        label="Sick Leave Start Date"
-        type="date"
-        InputLabelProps={{ shrink: true }}
-        {...register('sickLeave.startDate')}
-        error={!!errors.sickLeave?.startDate}
-        helperText={errors.sickLeave?.startDate?.message}
-      />
-      <TextField
-        label="Sick Leave End Date"
-        type="date"
-        InputLabelProps={{ shrink: true }}
-        {...register('sickLeave.endDate')}
-        error={!!errors.sickLeave?.endDate}
-        helperText={errors.sickLeave?.endDate?.message}
-      />
-    </>
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <TextField
+          label="Employer Name"
+          fullWidth
+          {...register('employerName', {
+            required: 'Employer name is required',
+          })}
+          error={!!errors.employerName}
+          helperText={errors.employerName?.message}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Sick Leave Start Date"
+          type="date"
+          fullWidth
+          InputLabelProps={{ shrink: true }}
+          {...register('sickLeave.startDate', {
+            required: 'Sick leave start date is required',
+          })}
+          error={!!errors.sickLeave?.startDate}
+          helperText={errors.sickLeave?.startDate?.message}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          label="Sick Leave End Date"
+          type="date"
+          fullWidth
+          InputLabelProps={{ shrink: true }}
+          {...register('sickLeave.endDate', {
+            required: 'Sick leave end date is required',
+          })}
+          error={!!errors.sickLeave?.endDate}
+          helperText={errors.sickLeave?.endDate?.message}
+        />
+      </Grid>
+    </Grid>
   );
 };
