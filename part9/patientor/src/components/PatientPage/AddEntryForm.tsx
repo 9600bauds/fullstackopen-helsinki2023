@@ -31,7 +31,7 @@ import {
   FieldErrors,
 } from 'react-hook-form';
 import patientService from '../../services/patients';
-import { assertNever } from '../../utils';
+import { assertNever, getErrorMessage } from '../../utils';
 import { useDiagnoses } from '../../contexts/DiagnosesContext';
 
 interface Props {
@@ -112,11 +112,8 @@ const AddEntryForm = ({ patientId, appendEntry }: Props) => {
       appendEntry(result);
       onSuccess();
     } catch (e: unknown) {
-      if (e instanceof Error) {
-        setError(e.message);
-      } else {
-        setError(String(e));
-      }
+      const message = getErrorMessage(e);
+      setError(message);
     }
   };
 
@@ -132,13 +129,11 @@ const AddEntryForm = ({ patientId, appendEntry }: Props) => {
       </Typography>
       <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid container spacing={2}>
-          {
-            error && (
-              <Grid item xs={12}>
-                <Alert severity="error">{`Error: ${error}`}</Alert>
-              </Grid>
-            ) /* Todo: Use MUI for error styling */
-          }
+          {error && (
+            <Grid item xs={12}>
+              <Alert severity="error">{`Error: ${error}`}</Alert>
+            </Grid>
+          )}
           <Grid item xs={12}>
             <TextField
               label="Description"
